@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"os"
+	"waveQServer/utils/logutil"
 )
 
 // Configuration 配置文件实体
@@ -26,11 +27,13 @@ func ReadConfiguration(filename string) (conf *Configuration, err error) {
 	var configuration = NewConfiguration()
 	file, err := os.Open(filename)
 	if err != nil {
+		logutil.LogError(err.Error())
 		return configuration, err
 	}
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
+			logutil.LogError(err.Error())
 		}
 	}(file)
 
