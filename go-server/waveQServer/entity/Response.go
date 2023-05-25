@@ -2,6 +2,7 @@ package entity
 
 import "time"
 
+// Response 返回结构体
 type Response struct {
 	//消息ID
 	MesId []byte
