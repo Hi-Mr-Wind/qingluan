@@ -2,7 +2,6 @@ package gropu
 
 import (
 	"errors"
-	"github.com/google/uuid"
 	"waveQServer/entity/queue"
 )
 
@@ -19,12 +18,15 @@ type Group struct {
 }
 
 // New 构造一个组对象
-func New() *Group {
+func New(groupId []byte) (*Group, error) {
+	if _, ok := groups[string(groupId)]; ok {
+		return nil, errors.New("the groupId is already existed")
+	}
 	group := new(Group)
-	group.GroupId = []byte(uuid.New().String())
+	group.GroupId = groupId
 	group.GroupQueue = make(map[string]*queue.Queue, 50)
 	groups[string(group.GroupId)] = group
-	return group
+	return group, nil
 }
 
 // GetGroupById 根据组ID获取一个组对象
