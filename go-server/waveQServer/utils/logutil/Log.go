@@ -12,7 +12,7 @@ import (
 func LogInfo(message string) {
 	s := " INFO: " + message
 	logMes := pieceLog(s)
-	i := getLogFileIo()
+	i := GetLogFileIo()
 	defer func(i *os.File) {
 		err := i.Close()
 		if err != nil {
@@ -28,7 +28,7 @@ func LogInfo(message string) {
 func LogWarning(message string) {
 	s := " WARNING: " + message
 	logMes := pieceLog(s)
-	i := getLogFileIo()
+	i := GetLogFileIo()
 	defer func(i *os.File) {
 		err := i.Close()
 		if err != nil {
@@ -44,7 +44,7 @@ func LogWarning(message string) {
 func LogError(message string) {
 	s := " ERROR: " + message
 	logMes := pieceLog(s)
-	i := getLogFileIo()
+	i := GetLogFileIo()
 	defer func(i *os.File) {
 		err := i.Close()
 		if err != nil {
@@ -61,8 +61,8 @@ func pieceLog(message string) string {
 	return time.Now().Format("2006-01-02 03:04:05") + message
 }
 
-// 获取日志文件的io
-func getLogFileIo() *os.File {
+// GetLogFileIo 获取日志文件的io
+func GetLogFileIo() *os.File {
 	f, err := os.OpenFile(getLogFileName(), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {
 		fmt.Println(err)

@@ -1,7 +1,11 @@
 package utils
 
 import (
+	"crypto/md5"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"github.com/google/uuid"
 	"os"
 	"path/filepath"
 	"strings"
@@ -29,6 +33,32 @@ func GetPathFiles(path string) []string {
 		return nil
 	}
 	return pathsArray
+}
+
+// GetApiKey 根据权限和随机ID生成一个唯一性的apikey
+func GetApiKey(rccessRights [][]byte) string {
+	data := make([]byte, 50, 100)
+	for i := 0; i < len(rccessRights); i++ {
+		for j := 0; j < len(rccessRights[i]); j++ {
+			data = append(data, rccessRights[i][j])
+		}
+	}
+	id := []byte(uuid.New().String())
+	data = append(data, id...)
+	// 创建一个 SHA256 的哈希实例
+	hash := sha256.New()
+	// 向哈希实例输入数据
+	hash.Write(data)
+	// 计算 SHA256 哈希值的字节数组
+	hashBytes := hash.Sum(nil)
+	// 将字节数组格式化为十六进制字符串
+	return fmt.Sprintf("%x", hashBytes)
+}
+
+// Md5 MD5加密
+func Md5(data []byte) string {
+	sum := md5.Sum(data)
+	return hex.EncodeToString(sum[:])
 }
 
 func walkFunc(path string, info os.FileInfo, err error) error {

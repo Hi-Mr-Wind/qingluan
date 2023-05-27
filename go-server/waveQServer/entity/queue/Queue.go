@@ -47,6 +47,18 @@ type Queue struct {
 	lock sync.RWMutex
 }
 
+// NewGroup 构造一个组对象
+func NewGroup(groupId []byte) (*Group, error) {
+	if _, ok := groups[string(groupId)]; ok {
+		return nil, errors.New("the groupId is already existed")
+	}
+	group := new(Group)
+	group.GroupId = groupId
+	group.GroupQueue = make(map[string]*Queue, 50)
+	groups[string(group.GroupId)] = group
+	return group, nil
+}
+
 // New 构建一个默认的队列结构,参数1所属群组，参数2 队列ID
 func New(groupId []byte, queueID []byte) (*Queue, error) {
 	gro := GetGroupById(groupId)
@@ -125,18 +137,6 @@ func (q *Queue) PullByIndex(index int32) (*entity.Message, error) {
 		return nil, errors.New("array index out of bounds")
 	}
 	return &q.messages[index], nil
-}
-
-// NewGroup 构造一个组对象
-func NewGroup(groupId []byte) (*Group, error) {
-	if _, ok := groups[string(groupId)]; ok {
-		return nil, errors.New("the groupId is already existed")
-	}
-	group := new(Group)
-	group.GroupId = groupId
-	group.GroupQueue = make(map[string]*Queue, 50)
-	groups[string(group.GroupId)] = group
-	return group, nil
 }
 
 // GetGroupById 根据组ID获取一个组对象

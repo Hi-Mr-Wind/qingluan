@@ -1,0 +1,7 @@
+{
+  "port": 9627,
+  "DataPath": "",
+  "heartBeat": 60,
+  "userName": "admin",
+  "password": "admin"
+}

@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 	"waveQServer/config"
+	"waveQServer/core"
 	"waveQServer/entity"
 	"waveQServer/entity/queue"
 	"waveQServer/utils/logutil"
@@ -16,12 +17,18 @@ var strings = make(chan string)
 func main() {
 	logutil.LogInfo("QingLuan is starting.....")
 	args := os.Args
-	_, err := config.ReadConfiguration(args[0])
-	if err != nil {
-		logutil.LogWarning(err.Error())
+	if len(args) == 1 {
+		config.ReadConfiguration("")
+	} else {
+		config.ReadConfiguration(args[1])
 	}
-
+	//gin.SetMode(gin.ReleaseMode) //开启生产环境
 	logutil.LogInfo("QingLuan is started successfully. Port number:" + strconv.Itoa(int(config.GetConfig().Port)))
+	err := core.GetServer().Run(":" + strconv.Itoa(int(config.GetConfig().Port)))
+	if err != nil {
+		logutil.LogError("Service startup failure:" + err.Error())
+		return
+	}
 	//
 	//fmt.Println(banner)
 	//fmt.Println(version)

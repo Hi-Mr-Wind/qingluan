@@ -1,4 +1,0 @@
-# 服务器名称
-server.name = ""
-server.address = "1,2,3,4"
-server.version = "1.0.0"
