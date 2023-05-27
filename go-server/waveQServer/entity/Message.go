@@ -1,6 +1,10 @@
 package entity
 
-import "time"
+import (
+	"github.com/google/uuid"
+	"time"
+	"waveQServer/utils"
+)
 
 // Heard 消息头
 type Heard struct {
@@ -27,4 +31,14 @@ type Message struct {
 	Header Heard `json:"header"`
 
 	Body []byte `json:"body"`
+}
+
+func NewHeard(ProducerID []byte, QueueID []byte) *Heard {
+	heard := new(Heard)
+	heard.Id = []byte(uuid.New().String())
+	heard.ProducerID = ProducerID
+	heard.QueueID = QueueID
+	heard.SendTime = time.Now()
+	heard.State = utils.NORMAL
+	return heard
 }

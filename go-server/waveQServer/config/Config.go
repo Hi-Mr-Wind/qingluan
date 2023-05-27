@@ -2,7 +2,9 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
+	"path/filepath"
 	"waveQServer/utils/logutil"
 )
 
@@ -30,12 +32,19 @@ func NewConfiguration() *Configuration {
 	conf.DataPath = logutil.GetPath() + "data"
 	conf.HeartBeat = 60
 	conf.DataFileSize = 100 * 1024
+	config = conf
 	return conf
 }
 
 // ReadConfiguration 读取配置文件
 func ReadConfiguration(filename string) (conf *Configuration, err error) {
+	if filename == "" {
+		filename = logutil.GetPath() + "config" + string(filepath.Separator) + "conf.json"
+	}
 	var configuration = NewConfiguration()
+	if _, err := os.Stat(filename); err != nil {
+		return configuration, errors.New("the configuration file does not exist. The default configuration has been enabled")
+	}
 	file, err := os.Open(filename)
 	if err != nil {
 		logutil.LogError(err.Error())

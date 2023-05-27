@@ -5,9 +5,20 @@ import (
 	"sync"
 	"time"
 	"waveQServer/entity"
-	"waveQServer/entity/gropu"
 	"waveQServer/utils"
 )
+
+// Groups 组对象集
+var groups = make(map[string]*Group, 50)
+
+// Group 组结构
+type Group struct {
+
+	// 组ID
+	GroupId []byte
+	// 组内队列
+	GroupQueue map[string]*Queue
+}
 
 // Queue 队列结构
 type Queue struct {
@@ -34,21 +45,19 @@ type Queue struct {
 
 	//定义写锁
 	lock sync.RWMutex
-
-	//队列消息数量
-	size int32
 }
 
 // New 构建一个默认的队列结构,参数1所属群组，参数2 队列ID
 func New(groupId []byte, queueID []byte) (*Queue, error) {
-	gro := gropu.GetGroupById(groupId)
+	gro := GetGroupById(groupId)
 	if gro == nil {
 		return nil, errors.New("this group is undefined")
 	}
 	queue := new(Queue)
 	queue.QueueId = queueID
+	queue.GroupId = groupId
 	queue.patternCopy = false
-	queue.capacity = -1
+	queue.capacity = 10000
 	queue.queueType = utils.STANDARD
 	queue.createTime = time.Now()
 	//向组内添加队列
@@ -76,7 +85,7 @@ func (q *Queue) SetPatternCopy(patternCopy bool) {
 
 // Size 获取队列消息数量
 func (q *Queue) Size() int32 {
-	return q.size
+	return int32(len(q.messages))
 }
 
 // Push 向队列添加消息 线程安全
@@ -85,20 +94,22 @@ func (q *Queue) Push(message *entity.Message) {
 	defer q.lock.Unlock()
 	messages := q.messages
 	if messages == nil {
-		q.messages = make([]entity.Message, 10, 20)
+		q.messages = make([]entity.Message, 1, q.capacity)
+	}
+	if int32(len(q.messages)) >= q.capacity {
+
 	}
 	//获取前条消息的ID
 	e := q.messages[len(q.messages)-1]
 	message.Header.FormerId = e.Header.Id
 	q.messages = append(q.messages, *message)
-	q.size += 1
 }
 
 // Pull 拉取并删除最先进入的元素 线程安全
 func (q *Queue) Pull() (*entity.Message, error) {
 	q.lock.Lock()
 	defer q.lock.Unlock()
-	if q.size == 0 {
+	if len(q.messages) == 0 {
 		return nil, errors.New("the queue is empty")
 	}
 	message := q.messages[0]
@@ -110,8 +121,44 @@ func (q *Queue) Pull() (*entity.Message, error) {
 func (q *Queue) PullByIndex(index int32) (*entity.Message, error) {
 	q.lock.Lock()
 	defer q.lock.Unlock()
-	if index > q.size-1 {
+	if index > int32(len(q.messages)-1) {
 		return nil, errors.New("array index out of bounds")
 	}
 	return &q.messages[index], nil
+}
+
+// NewGroup 构造一个组对象
+func NewGroup(groupId []byte) (*Group, error) {
+	if _, ok := groups[string(groupId)]; ok {
+		return nil, errors.New("the groupId is already existed")
+	}
+	group := new(Group)
+	group.GroupId = groupId
+	group.GroupQueue = make(map[string]*Queue, 50)
+	groups[string(group.GroupId)] = group
+	return group, nil
+}
+
+// GetGroupById 根据组ID获取一个组对象
+func GetGroupById(id []byte) *Group {
+	return groups[string(id)]
+}
+
+// GetGroupQueueById 根据队列ID获取队列
+func (g *Group) GetGroupQueueById(queueId []byte) (*Queue, error) {
+	q, ok := g.GroupQueue[string(queueId)]
+	if !ok {
+		return nil, errors.New("the queue is not in Group")
+	}
+	return q, nil
+}
+
+// BindQueue 向组中添加一个队列
+func (g *Group) BindQueue(que *Queue) error {
+	q := g.GroupQueue[string(que.QueueId)]
+	if q != nil {
+		return errors.New("the queue is already in the group")
+	}
+	g.GroupQueue[string(que.QueueId)] = que
+	return nil
 }

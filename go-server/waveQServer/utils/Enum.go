@@ -8,3 +8,11 @@ const (
 	// BLOCK 阻塞模式
 	BLOCK
 )
+
+// 消息状态
+const (
+	// NORMAL 正常
+	NORMAL = iota
+	// OVER_TIME 超时
+	OVER_TIME
+)

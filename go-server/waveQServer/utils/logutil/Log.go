@@ -10,25 +10,49 @@ import (
 
 // LogInfo 记录info级别日志
 func LogInfo(message string) {
-	logMes := pieceLog("INFO: " + message)
-	log.SetOutput(getLogFileIo())
-	log.Println(logMes)
+	s := " INFO: " + message
+	logMes := pieceLog(s)
+	i := getLogFileIo()
+	defer func(i *os.File) {
+		err := i.Close()
+		if err != nil {
+
+		}
+	}(i)
+	log.SetOutput(i)
+	log.Println(s)
 	fmt.Println(logMes)
 }
 
 // LogWarning 记录warning级别日志
 func LogWarning(message string) {
-	logMes := pieceLog("WARNING: " + message)
-	log.SetOutput(getLogFileIo())
-	log.Println(logMes)
+	s := " WARNING: " + message
+	logMes := pieceLog(s)
+	i := getLogFileIo()
+	defer func(i *os.File) {
+		err := i.Close()
+		if err != nil {
+
+		}
+	}(i)
+	log.SetOutput(i)
+	log.Println(s)
 	fmt.Println(logMes)
 }
 
 // LogError 记录error级别日志
 func LogError(message string) {
-	logMes := pieceLog("ERROR: " + message)
-	log.SetOutput(getLogFileIo())
-	log.Println(logMes)
+	s := " ERROR: " + message
+	logMes := pieceLog(s)
+	i := getLogFileIo()
+	defer func(i *os.File) {
+		err := i.Close()
+		if err != nil {
+
+		}
+	}(i)
+	log.SetOutput(i)
+	log.Println(s)
 	fmt.Println(logMes)
 }
 
@@ -39,22 +63,22 @@ func pieceLog(message string) string {
 
 // 获取日志文件的io
 func getLogFileIo() *os.File {
-	f, err := os.OpenFile(getLogFileName(), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(getLogFileName(), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {
 		fmt.Println(err)
 	}
-	defer func(f *os.File) {
-		err := f.Close()
-		if err != nil {
-			fmt.Println("The logutil file close fail...")
-		}
-	}(f)
 	return f
 }
 
 // getLogFileName 获取日志文件名称,从绝对路径开始
 func getLogFileName() string {
-	return GetPath() + "logs" + string(filepath.Separator) + time.Now().Format("2006-01-02") + ".logutil"
+	pat := GetPath() + "logs"
+	_, err := os.Stat(pat)
+	if err != nil {
+		if err := os.MkdirAll(pat, 0777); err != nil {
+		}
+	}
+	return pat + string(filepath.Separator) + time.Now().Format("2006-01-02") + ".log"
 }
 
 // GetPath 获取项目绝对路径末尾带路径分隔符
