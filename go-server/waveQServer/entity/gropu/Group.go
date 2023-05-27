@@ -17,8 +17,8 @@ type Group struct {
 	GroupQueue map[string]*queue.Queue
 }
 
-// New 构造一个组对象
-func New(groupId []byte) (*Group, error) {
+// NewGroup 构造一个组对象
+func NewGroup(groupId []byte) (*Group, error) {
 	if _, ok := groups[string(groupId)]; ok {
 		return nil, errors.New("the groupId is already existed")
 	}
@@ -44,6 +44,11 @@ func (g *Group) GetGroupQueueById(queueId []byte) (*queue.Queue, error) {
 }
 
 // BindQueue 向组中添加一个队列
-func (g *Group) BindQueue(que *queue.Queue) {
+func (g *Group) BindQueue(que *queue.Queue) error {
+	q := g.GroupQueue[string(que.QueueId)]
+	if q != nil {
+		return errors.New("the queue is already in the group")
+	}
 	g.GroupQueue[string(que.QueueId)] = que
+	return nil
 }

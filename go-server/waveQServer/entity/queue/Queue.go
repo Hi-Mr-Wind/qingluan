@@ -1,9 +1,11 @@
 package queue
 
 import (
-	"github.com/google/uuid"
+	"errors"
+	"sync"
 	"time"
 	"waveQServer/entity"
+	"waveQServer/entity/gropu"
 	"waveQServer/utils"
 )
 
@@ -16,62 +18,100 @@ type Queue struct {
 	GroupId []byte
 
 	//队列容量
-	Capacity int32
+	capacity int32
 
 	//队列类型
-	QueueType int8
+	queueType int8
 
 	//队列模式 true为复制模式  否则为分发模式
-	PatternCopy bool
+	patternCopy bool
 
 	//队列消息
-	Messages []entity.Message
+	messages []entity.Message
 
 	//创建时间
-	CreateTime time.Time
+	createTime time.Time
+
+	//定义写锁
+	lock sync.RWMutex
+
+	//队列消息数量
+	size int32
 }
 
-// New 构建一个默认的队列结构
-func New() *Queue {
-	queue := new(Queue)
-	queue.QueueId = []byte(uuid.New().String())
-	queue.PatternCopy = false
-	queue.Capacity = -1
-	queue.QueueType = utils.STANDARD
-	queue.CreateTime = time.Now()
-	return queue
-}
-
-func NewQueue(queue Queue) *Queue {
-	q := New()
-	q.GroupId = queue.GroupId
-	q.Capacity = queue.Capacity
-	q.QueueType = queue.QueueType
-	q.PatternCopy = queue.PatternCopy
-	return q
-}
-
-// Push 向队列添加消息
-func (q *Queue) Push(message *entity.Message) {
-	messages := q.Messages
-	if messages == nil {
-		q.Messages = make([]entity.Message, 10, 20)
+// New 构建一个默认的队列结构,参数1所属群组，参数2 队列ID
+func New(groupId []byte, queueID []byte) (*Queue, error) {
+	gro := gropu.GetGroupById(groupId)
+	if gro == nil {
+		return nil, errors.New("this group is undefined")
 	}
-	q.Messages = append(q.Messages, *message)
+	queue := new(Queue)
+	queue.QueueId = queueID
+	queue.patternCopy = false
+	queue.capacity = -1
+	queue.queueType = utils.STANDARD
+	queue.createTime = time.Now()
+	//向组内添加队列
+	err := gro.BindQueue(queue)
+	if err != nil {
+		return nil, err
+	}
+	return queue, nil
+}
+
+// SetCapacity 设置队列容量
+func (q *Queue) SetCapacity(capacity int32) {
+	q.capacity = capacity
+}
+
+// SetQueueType 设置队列类型
+func (q *Queue) SetQueueType(queueType int8) {
+	q.queueType = queueType
+}
+
+// SetPatternCopy 设置队列模式 true为复制模式  否则为分发模式
+func (q *Queue) SetPatternCopy(patternCopy bool) {
+	q.patternCopy = patternCopy
 }
 
 // Size 获取队列消息数量
-func (q *Queue) Size() int {
-	return len(q.Messages)
+func (q *Queue) Size() int32 {
+	return q.size
 }
 
-// Popup 弹出元素
-func (q *Queue) Popup() (entity.Message, *[]entity.Message) {
-	if len(q.Messages) == 0 {
-		return entity.Message{}, &q.Messages
+// Push 向队列添加消息 线程安全
+func (q *Queue) Push(message *entity.Message) {
+	q.lock.Lock()
+	defer q.lock.Unlock()
+	messages := q.messages
+	if messages == nil {
+		q.messages = make([]entity.Message, 10, 20)
 	}
-	message := q.Messages[0]
-	messages := q.Messages[1:]
-	q.Messages = messages
-	return message, &messages
+	//获取前条消息的ID
+	e := q.messages[len(q.messages)-1]
+	message.Header.FormerId = e.Header.Id
+	q.messages = append(q.messages, *message)
+	q.size += 1
+}
+
+// Pull 拉取并删除最先进入的元素 线程安全
+func (q *Queue) Pull() (*entity.Message, error) {
+	q.lock.Lock()
+	defer q.lock.Unlock()
+	if q.size == 0 {
+		return nil, errors.New("the queue is empty")
+	}
+	message := q.messages[0]
+	q.messages = q.messages[1:]
+	return &message, nil
+}
+
+// PullByIndex 获取队列中指定下标的元素
+func (q *Queue) PullByIndex(index int32) (*entity.Message, error) {
+	q.lock.Lock()
+	defer q.lock.Unlock()
+	if index > q.size-1 {
+		return nil, errors.New("array index out of bounds")
+	}
+	return &q.messages[index], nil
 }
