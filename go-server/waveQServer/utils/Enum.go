@@ -1,5 +1,6 @@
 package utils
 
+// 队列类型枚举
 const (
 	// STANDARD 标准模式
 	STANDARD = iota

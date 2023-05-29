@@ -114,6 +114,8 @@ func (q *Queue) Push(message *entity.Message) {
 	//获取前条消息的ID
 	e := q.messages[len(q.messages)-1]
 	message.Header.FormerId = e.Header.Id
+	// 异步将消息持久化
+	go utils.AsyncMessage(message)
 	q.messages = append(q.messages, *message)
 }
 
@@ -127,6 +129,17 @@ func (q *Queue) Pull() (*entity.Message, error) {
 	message := q.messages[0]
 	q.messages = q.messages[1:]
 	return &message, nil
+}
+
+// PullChan 通过通道获取队列中的消息
+func (q *Queue) PullChan() (chan *entity.Message, error) {
+	pull, err := q.Pull()
+	if err != nil {
+		return nil, err
+	}
+	messagesChan := make(chan *entity.Message)
+	messagesChan <- pull
+	return messagesChan, nil
 }
 
 // PullByIndex 获取队列中指定下标的元素
@@ -161,4 +174,8 @@ func (g *Group) BindQueue(que *Queue) error {
 	}
 	g.GroupQueue[string(que.QueueId)] = que
 	return nil
+}
+
+func getChan() {
+
 }

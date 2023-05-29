@@ -9,6 +9,7 @@ import (
 	"waveQServer/core"
 	"waveQServer/entity"
 	"waveQServer/entity/queue"
+	"waveQServer/utils"
 	"waveQServer/utils/logutil"
 )
 
@@ -21,6 +22,10 @@ func main() {
 		config.ReadConfiguration("")
 	} else {
 		config.ReadConfiguration(args[1])
+	}
+	file, err := utils.GetMessageFromFile()
+	if err == nil {
+
 	}
 	//gin.SetMode(gin.ReleaseMode) //开启生产环境
 	logutil.LogInfo("QingLuan is started successfully. Port number:" + strconv.Itoa(int(config.GetConfig().Port)))

@@ -2,7 +2,6 @@ package entity
 
 import (
 	"github.com/google/uuid"
-	"time"
 	"waveQServer/utils"
 )
 
@@ -12,8 +11,10 @@ type Heard struct {
 	Id []byte `json:"id"`
 	//生产者ID
 	ProducerID []byte `json:"producerID"`
+	// 消息生成的时间戳
+	Timestamp int64 `json:"timestamp"`
 	//发送时间
-	SendTime time.Time `json:"sendTime"`
+	SendTime int64 `json:"sendTime"`
 	//所属队列ID
 	QueueID []byte `json:"queueID"`
 	//前条消息ID
@@ -24,6 +25,8 @@ type Heard struct {
 	DelayTime uint32 `json:"delayTime"`
 	//消息状态
 	State int8 `json:"state"`
+	//存储到的文件
+	File string `json:"file"`
 }
 
 // Message 消息对象
@@ -38,7 +41,6 @@ func NewHeard(ProducerID []byte, QueueID []byte) *Heard {
 	heard.Id = []byte(uuid.New().String())
 	heard.ProducerID = ProducerID
 	heard.QueueID = QueueID
-	heard.SendTime = time.Now()
 	heard.State = utils.NORMAL
 	return heard
 }
