@@ -6,10 +6,9 @@ import (
 	"strconv"
 	"time"
 	"waveQServer/config"
-	"waveQServer/core"
+	"waveQServer/core/service"
 	"waveQServer/entity"
 	"waveQServer/entity/queue"
-	"waveQServer/utils"
 	"waveQServer/utils/logutil"
 )
 
@@ -23,13 +22,9 @@ func main() {
 	} else {
 		config.ReadConfiguration(args[1])
 	}
-	file, err := utils.GetMessageFromFile()
-	if err == nil {
-
-	}
 	//gin.SetMode(gin.ReleaseMode) //开启生产环境
 	logutil.LogInfo("QingLuan is started successfully. Port number:" + strconv.Itoa(int(config.GetConfig().Port)))
-	err := core.GetServer().Run(":" + strconv.Itoa(int(config.GetConfig().Port)))
+	err := service.GetServer().Run(":" + strconv.Itoa(int(config.GetConfig().Port)))
 	if err != nil {
 		logutil.LogError("Service startup failure:" + err.Error())
 		return
