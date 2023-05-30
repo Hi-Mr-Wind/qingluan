@@ -1,14 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strconv"
-	"time"
 	"waveQServer/config"
 	"waveQServer/core/service"
-	"waveQServer/entity"
-	"waveQServer/entity/queue"
 	"waveQServer/utils/logutil"
 )
 
@@ -49,34 +45,4 @@ func main() {
 	//go get(id)
 	////fmt.Println(<-strings)
 	//fmt.Scanln()
-}
-
-func mes(id *queue.Queue) {
-	for i := 1; i <= 100; i++ {
-		heard := entity.NewHeard(nil, []byte("123123123"))
-		message := entity.Message{
-			Header: *heard,
-			Body:   []byte("哈哈哈哈哈哈哈" + strconv.Itoa(i)),
-		}
-		id.Push(&message)
-		fmt.Println("现存元素数量" + strconv.Itoa(int(id.Size())))
-	}
-}
-
-func get(id *queue.Queue) {
-	for {
-		time.Sleep(10000)
-		fmt.Println("剩余元素数量：" + strconv.Itoa(int(id.Size())))
-		pull, err := id.Pull()
-		if err != nil {
-			fmt.Println(err.Error())
-			continue
-			//strings <- err.Error()
-		}
-		if pull.Body != nil {
-			fmt.Println("消费到消息：" + string(pull.Body))
-			//return strings
-		}
-		//return strings
-	}
 }

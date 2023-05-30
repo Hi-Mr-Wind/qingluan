@@ -6,6 +6,7 @@ import (
 	"waveQServer/entity"
 	"waveQServer/identity"
 	"waveQServer/utils"
+	"waveQServer/utils/logutil"
 )
 
 // BroadcastQueue 广播队列结构
@@ -70,6 +71,7 @@ func (q *BroadcastQueue) Pull(index int32) *entity.Message {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 	if index >= q.Size() {
+		logutil.LogInfo(q.GroupId + " --queue:" + q.QueueId + "is nonentity message ")
 		return nil
 	}
 	return &q.messages[index]

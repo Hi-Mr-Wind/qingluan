@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 	"waveQServer/entity"
 	"waveQServer/utils/logutil"
 )
@@ -135,6 +136,11 @@ func GetApiKey(rccessRights [][]byte) string {
 func Md5(data []byte) string {
 	sum := md5.Sum(data)
 	return hex.EncodeToString(sum[:])
+}
+
+// GetTime 获取一个格式化后的当前时间
+func GetTime() string {
+	return time.Now().Format("2006-01-02 03:04:05")
 }
 
 func walkFunc(path string, info os.FileInfo, err error) error {
