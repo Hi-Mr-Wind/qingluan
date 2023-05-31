@@ -1,27 +1,35 @@
-package service
+package httpUtils
 
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"waveQServer/comm"
+	"waveQServer/utils"
+	"waveQServer/utils/jwtutil"
 	"waveQServer/utils/logutil"
 )
 
 var server *gin.Engine
 
-type engine struct {
-	service *gin.Engine
-}
-
 // GetServer 获取一个服务引擎
 func GetServer() *gin.Engine {
+	return server
+}
+
+// 初始化gin服务
+func init() {
 	if server == nil {
 		gin.DefaultWriter = logutil.GetLogFileIo() //输出日志切换为文件
 		server = gin.New()
 		server.Use(gin.Recovery())
 		server.Use(CrosHandler())
 	}
-	return server
+}
+
+// GetRouterGroup 获取一个路由组
+func GetRouterGroup(groupUrl string) *gin.RouterGroup {
+	return server.Group(groupUrl)
 }
 
 // CrosHandler 配置跨域中间件
@@ -55,4 +63,21 @@ func CrosHandler() gin.HandlerFunc {
 		}()
 		c.Next()
 	}
+}
+
+// Token 验证Token
+func Token(c *gin.Context) {
+	token := c.Request.Header.Get("XMD-TOKEN")
+	if utils.IsEmpty(token) {
+		c.JSON(http.StatusForbidden, comm.Fail("illegal user ！"))
+		c.Abort()
+		return
+	}
+	_, err := jwtutil.ParseToken(token)
+	if err != nil {
+		c.JSON(http.StatusForbidden, comm.Fail(err.Error()))
+		c.Abort()
+		return
+	}
+	return
 }

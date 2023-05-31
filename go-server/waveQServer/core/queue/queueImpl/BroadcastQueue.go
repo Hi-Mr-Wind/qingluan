@@ -5,7 +5,7 @@ import (
 	"time"
 	"waveQServer/entity"
 	"waveQServer/identity"
-	"waveQServer/utils"
+	"waveQServer/utils/lastingUtils"
 	"waveQServer/utils/logutil"
 )
 
@@ -62,7 +62,7 @@ func (q *BroadcastQueue) Push(message *entity.Message) {
 	e := q.messages[len(q.messages)-1]
 	message.Header.FormerId = e.Header.Id
 	// 异步将消息持久化
-	go utils.AsyncMessage(message)
+	go lastingUtils.AsyncMessage(message)
 	q.messages = append(q.messages, *message)
 }
 
@@ -80,4 +80,8 @@ func (q *BroadcastQueue) Pull(index int32) *entity.Message {
 // AddUser 添加一个队列消费者
 func (q *BroadcastQueue) AddUser(user *identity.User) {
 	q.monitor = append(q.monitor, user)
+}
+
+func (q *BroadcastQueue) GetQueueId() string {
+	return q.QueueId
 }

@@ -6,7 +6,7 @@ import (
 	"time"
 	"waveQServer/entity"
 	"waveQServer/identity"
-	"waveQServer/utils"
+	"waveQServer/utils/lastingUtils"
 )
 
 // StandardQueue 标准队列结构
@@ -62,7 +62,7 @@ func (q *StandardQueue) Push(message *entity.Message) {
 	e := q.messages[len(q.messages)-1]
 	message.Header.FormerId = e.Header.Id
 	// 异步将消息持久化
-	go utils.AsyncMessage(message)
+	go lastingUtils.AsyncMessage(message)
 	q.messages = append(q.messages, *message)
 }
 
@@ -81,4 +81,8 @@ func (q *StandardQueue) Pull() (*entity.Message, error) {
 // AddUser 添加一个队列消费者
 func (q *StandardQueue) AddUser(user *identity.User) {
 	q.monitor = append(q.monitor, user)
+}
+
+func (q *StandardQueue) GetQueueId() string {
+	return q.QueueId
 }
