@@ -12,6 +12,8 @@ var strings = make(chan string)
 
 func main() {
 	logutil.LogInfo("QingLuan is starting.....")
+	logutil.LogInfo(banner)
+	logutil.LogInfo("version: V" + version)
 	args := os.Args
 	if len(args) == 1 {
 		config.ReadConfiguration("")

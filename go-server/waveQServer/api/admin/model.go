@@ -10,5 +10,5 @@ func Include() {
 	// admin路由组
 	group := httpUtils.GetRouterGroup("/admin")
 	group.Use(httpUtils.Token)
-
+	Urls(group)
 }

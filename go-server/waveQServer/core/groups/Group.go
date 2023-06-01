@@ -37,11 +37,11 @@ func GetGroupById(id []byte) *Group {
 // GetGroupQueueById 根据队列ID获取队列
 func GetGroupQueueById(groupId []byte, queueId []byte) (*queue.Queue, error) {
 	id := GetGroupById(groupId)
-	queue := id.GroupQueue[string(queueId)]
-	if queue == nil {
+	que := id.GroupQueue[string(queueId)]
+	if que == nil {
 		return nil, errors.New("the queue is not in Group")
 	}
-	return queue, nil
+	return que, nil
 }
 
 // BindQueue 向组中添加一个队列

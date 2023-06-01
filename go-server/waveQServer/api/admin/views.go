@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"waveQServer/comm"
 	"waveQServer/config"
+	"waveQServer/core/groups"
+	"waveQServer/core/queue/queueImpl"
 	"waveQServer/identity"
 	"waveQServer/utils"
 	"waveQServer/utils/jwtutil"
@@ -47,4 +49,60 @@ func Login(c *gin.Context) {
 	c.JSON(http.StatusOK, ok)
 	c.Abort()
 	return
+}
+
+// CreateGroup 创建一个组
+func CreateGroup(c *gin.Context) {
+	group := make(map[string]string)
+	err := c.ShouldBindJSON(group)
+	if err != nil {
+		comm.DisposeError(err, c)
+		return
+	}
+	_, err = groups.NewGroup([]byte(group["groupId"]))
+	if err != nil {
+		comm.DisposeError(err, c)
+		return
+	}
+	c.JSON(http.StatusOK, comm.OK())
+	return
+}
+
+func CreateQueue(c *gin.Context) {
+	group := make(map[string]string)
+	err := c.ShouldBindJSON(group)
+	if err != nil {
+		comm.DisposeError(err, c)
+		return
+	}
+	queueType := group["queueType"]
+	groupId := group["GroupId"]
+	squeueId := group["queueId"]
+	switch queueType {
+	case "1":
+		delayQueue, err := queueImpl.NewDelayQueue([]byte(squeueId))
+		if err != nil {
+			comm.DisposeError(err, c)
+			return
+		}
+		err = groups.GetGroupById([]byte(groupId)).BindQueue(delayQueue)
+		if err != nil {
+			comm.DisposeError(err, c)
+			return
+		}
+		break
+	case "2":
+		queue, err := queueImpl.NewBroadcastQueue([]byte(squeueId))
+		if err != nil {
+			comm.DisposeError(err, c)
+			return
+		}
+		err = groups.GetGroupById([]byte(groupId)).BindQueue(queue)
+		if err != nil {
+			comm.DisposeError(err, c)
+			return
+		}
+		break
+	}
+
 }

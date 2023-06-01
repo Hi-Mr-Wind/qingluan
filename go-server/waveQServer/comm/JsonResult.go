@@ -1,6 +1,10 @@
 package comm
 
-import "waveQServer/comm/enum"
+import (
+	"github.com/gin-gonic/gin"
+	"net/http"
+	"waveQServer/comm/enum"
+)
 
 type JsonResult struct {
 	Code int `json:"code"`
@@ -26,4 +30,12 @@ func Fail(mes string) *JsonResult {
 	result.Code = enum.FAIL
 	result.Mes = mes
 	return result
+}
+
+// DisposeError 处理异常
+func DisposeError(err error, c *gin.Context) {
+	fail := Fail(err.Error())
+	c.JSON(http.StatusBadRequest, fail)
+	c.Abort()
+	return
 }
