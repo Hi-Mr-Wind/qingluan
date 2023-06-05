@@ -18,26 +18,26 @@ type Group struct {
 }
 
 // NewGroup 构造一个组对象
-func NewGroup(groupId []byte) (*Group, error) {
-	if _, ok := groups[string(groupId)]; ok {
+func NewGroup(groupId string) (*Group, error) {
+	if _, ok := groups[groupId]; ok {
 		return nil, errors.New("the groupId is already existed")
 	}
 	group := new(Group)
-	group.GroupId = string(groupId)
+	group.GroupId = groupId
 	group.GroupQueue = make(map[string]*queue.Queue, 50)
 	groups[group.GroupId] = group
 	return group, nil
 }
 
 // GetGroupById 根据组ID获取一个组对象
-func GetGroupById(id []byte) *Group {
-	return groups[string(id)]
+func GetGroupById(id string) *Group {
+	return groups[id]
 }
 
 // GetGroupQueueById 根据队列ID获取队列
-func GetGroupQueueById(groupId []byte, queueId []byte) (*queue.Queue, error) {
+func GetGroupQueueById(groupId string, queueId string) (*queue.Queue, error) {
 	id := GetGroupById(groupId)
-	que := id.GroupQueue[string(queueId)]
+	que := id.GroupQueue[queueId]
 	if que == nil {
 		return nil, errors.New("the queue is not in Group")
 	}

@@ -1,28 +1,32 @@
 package identity
 
 import (
-	"waveQServer/entity"
+	"waveQServer/entity/message"
 )
 
 // Subscriber 定义一个消息通道
-type subscriber chan *entity.Message
+type subscriber chan *message.Message
 
 // User 消费者用户结构
 type User struct {
 	//apikey
 	ApiKey string `json:"apiKey"`
 	//访问队列权限
-	RccessRights [][]byte `json:"rccessRights"`
+	RccessRights []string `json:"rccessRights"`
 	//过期时间
 	OutTime int64
 	//消费通道
 	MessageChan subscriber
 	//消费游标
 	Index int32
+
+	GroupId string
+
+	QueueId string
 }
 
 type UserBuilder struct {
-	rccessRights [][]byte
+	rccessRights []string
 	apiKey       string
 	outTime      int64
 }
@@ -32,26 +36,26 @@ func BuilderUser() *UserBuilder {
 	return new(UserBuilder)
 }
 
-// addRccessRights 添加访问权限组
-func (b *UserBuilder) addRccessRights(rccessRights [][]byte) *UserBuilder {
+// AddRccessRights 添加访问权限组
+func (b *UserBuilder) AddRccessRights(rccessRights []string) *UserBuilder {
 	b.rccessRights = rccessRights
 	return b
 }
 
-// 添加apikey
-func (b *UserBuilder) addApiKey(apiKey string) *UserBuilder {
+// AddApiKey 添加apikey
+func (b *UserBuilder) AddApiKey(apiKey string) *UserBuilder {
 	b.apiKey = apiKey
 	return b
 }
 
-// 添加过期时间
-func (b *UserBuilder) addOutTime(outTime int64) *UserBuilder {
+// AddOutTime 添加过期时间
+func (b *UserBuilder) AddOutTime(outTime int64) *UserBuilder {
 	b.outTime = outTime
 	return b
 }
 
-// 构建user对象
-func (b *UserBuilder) build() *User {
+// Build 构建user对象
+func (b *UserBuilder) Build() *User {
 	user := new(User)
 	user.MessageChan = make(subscriber)
 	user.Index = 0

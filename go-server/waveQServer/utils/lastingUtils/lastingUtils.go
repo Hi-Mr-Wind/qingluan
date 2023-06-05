@@ -7,13 +7,13 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"waveQServer/entity"
+	"waveQServer/entity/message"
 	"waveQServer/utils"
 	"waveQServer/utils/logutil"
 )
 
 // AsyncMessage 异步将消息写入文件
-func AsyncMessage(mes *entity.Message) {
+func AsyncMessage(mes *message.Message) {
 	marshal, err := json.Marshal(mes)
 	if err != nil {
 		logutil.LogError(err.Error())
@@ -29,8 +29,8 @@ func AsyncMessage(mes *entity.Message) {
 }
 
 // GetMessageFromFile 解析所有持久化的消息
-func GetMessageFromFile() ([]*entity.Message, error) {
-	mess := make([]*entity.Message, 50)
+func GetMessageFromFile() ([]*message.Message, error) {
+	mess := make([]*message.Message, 50)
 	// 读取文件内容
 	files := utils.GetPathFiles(fmt.Sprintf("%sdata", logutil.GetPath()))
 	if len(files) == 0 {
@@ -42,7 +42,7 @@ func GetMessageFromFile() ([]*entity.Message, error) {
 			return nil, err
 		}
 		// 解析为消息对象
-		var msg entity.Message
+		var msg message.Message
 		err = json.Unmarshal(msgBytes, &msg)
 		if err != nil {
 			return nil, err

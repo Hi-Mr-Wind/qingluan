@@ -4,7 +4,7 @@ import (
 	"errors"
 	"sync"
 	"time"
-	"waveQServer/entity"
+	"waveQServer/entity/message"
 	"waveQServer/identity"
 	"waveQServer/utils/lastingUtils"
 )
@@ -21,10 +21,10 @@ type DelayQueue struct {
 	Capacity int32
 
 	//队列消息
-	messages []entity.Message
+	messages []message.Message
 
 	//消费者
-	monitor []*identity.User
+	monitor map[string]*identity.User
 
 	//创建时间
 	createTime time.Time
@@ -48,12 +48,12 @@ func (q *DelayQueue) Size() int32 {
 }
 
 // Push 向队列添加消息 线程安全
-func (q *DelayQueue) Push(message *entity.Message) {
+func (q *DelayQueue) Push(message *message.Message) {
 	q.lock.RLock()
 	defer q.lock.RUnlock()
 	messages := q.messages
 	if messages == nil {
-		q.messages = make([]entity.Message, 1, q.Capacity)
+		q.messages = make([]message.Message, 1, q.Capacity)
 	}
 	if int32(len(q.messages)) >= q.Capacity {
 
@@ -67,7 +67,7 @@ func (q *DelayQueue) Push(message *entity.Message) {
 }
 
 // Pull 拉取并删除最先进入的元素 线程安全
-func (q *DelayQueue) Pull() (*entity.Message, error) {
+func (q *DelayQueue) Pull() (*message.Message, error) {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 	if len(q.messages) == 0 {
@@ -80,7 +80,7 @@ func (q *DelayQueue) Pull() (*entity.Message, error) {
 
 // AddUser 添加一个队列消费者
 func (q *DelayQueue) AddUser(user *identity.User) {
-	q.monitor = append(q.monitor, user)
+	q.monitor[user.ApiKey] = user
 }
 
 func (q *DelayQueue) GetQueueId() string {

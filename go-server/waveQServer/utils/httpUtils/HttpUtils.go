@@ -81,3 +81,13 @@ func Token(c *gin.Context) {
 	}
 	return
 }
+
+// VerifyUser 检查请求中是否包含apikey
+func VerifyUser(c *gin.Context) {
+	apiKey := c.Request.Header.Get("API_KEY")
+	if utils.IsEmpty(apiKey) {
+		c.JSON(http.StatusForbidden, comm.Fail("Unknown client!"))
+		c.Abort()
+		return
+	}
+}

@@ -70,7 +70,7 @@ func GetPathFiles(path string) []string {
 }
 
 // GetApiKey 根据权限和随机ID生成一个唯一性的apikey
-func GetApiKey(rccessRights [][]byte) string {
+func GetApiKey(rccessRights []string) string {
 	data := make([]byte, 50, 100)
 	for i := 0; i < len(rccessRights); i++ {
 		for j := 0; j < len(rccessRights[i]); j++ {

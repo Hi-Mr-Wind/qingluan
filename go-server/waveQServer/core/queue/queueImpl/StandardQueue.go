@@ -4,7 +4,7 @@ import (
 	"errors"
 	"sync"
 	"time"
-	"waveQServer/entity"
+	"waveQServer/entity/message"
 	"waveQServer/identity"
 	"waveQServer/utils/lastingUtils"
 )
@@ -21,10 +21,10 @@ type StandardQueue struct {
 	Capacity int32
 
 	//队列消息
-	messages []entity.Message
+	messages []message.Message
 
 	//消费者
-	monitor []*identity.User
+	monitor map[string]*identity.User
 
 	//创建时间
 	createTime time.Time
@@ -48,12 +48,12 @@ func (q *StandardQueue) Size() int32 {
 }
 
 // Push 向队列添加消息 线程安全
-func (q *StandardQueue) Push(message *entity.Message) {
+func (q *StandardQueue) Push(message *message.Message) {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 	messages := q.messages
 	if messages == nil {
-		q.messages = make([]entity.Message, 1, q.Capacity)
+		q.messages = make([]message.Message, 1, q.Capacity)
 	}
 	if int32(len(q.messages)) >= q.Capacity {
 
@@ -67,7 +67,7 @@ func (q *StandardQueue) Push(message *entity.Message) {
 }
 
 // Pull 拉取并删除最先进入的元素 线程安全
-func (q *StandardQueue) Pull() (*entity.Message, error) {
+func (q *StandardQueue) Pull() (*message.Message, error) {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 	if len(q.messages) == 0 {
@@ -80,7 +80,7 @@ func (q *StandardQueue) Pull() (*entity.Message, error) {
 
 // AddUser 添加一个队列消费者
 func (q *StandardQueue) AddUser(user *identity.User) {
-	q.monitor = append(q.monitor, user)
+	q.monitor[user.ApiKey] = user
 }
 
 func (q *StandardQueue) GetQueueId() string {

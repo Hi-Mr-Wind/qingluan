@@ -16,7 +16,7 @@ import (
 // Login 管理员登录
 func Login(c *gin.Context) {
 	admin := identity.NewAdmin()
-	err := c.ShouldBindJSON(&admin)
+	err := c.ShouldBindJSON(admin)
 	if err != nil {
 		logutil.LogError(err.Error())
 		fail := comm.Fail(err.Error())
