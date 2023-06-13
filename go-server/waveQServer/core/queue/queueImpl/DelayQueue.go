@@ -48,7 +48,7 @@ func (q *DelayQueue) Size() int32 {
 }
 
 // Push 向队列添加消息 线程安全
-func (q *DelayQueue) Push(message *message.Message) {
+func (q *DelayQueue) Push(mes *message.Message) {
 	q.lock.RLock()
 	defer q.lock.RUnlock()
 	messages := q.messages
@@ -60,10 +60,10 @@ func (q *DelayQueue) Push(message *message.Message) {
 	}
 	//获取前条消息的ID
 	e := q.messages[len(q.messages)-1]
-	message.Header.FormerId = e.Header.Id
+	mes.Header.FormerId = e.Header.Id
 	// 异步将消息持久化
-	go lastingUtils.AsyncMessage(message)
-	q.messages = append(q.messages, *message)
+	go lastingUtils.AsyncMessage(mes)
+	q.messages = append(q.messages, *mes)
 }
 
 // Pull 拉取并删除最先进入的元素 线程安全

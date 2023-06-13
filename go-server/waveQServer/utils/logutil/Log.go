@@ -10,7 +10,7 @@ import (
 
 // LogInfo 记录info级别日志
 func LogInfo(message string) {
-	s := " INFO: " + message
+	s := " [INFO]: " + message
 	logMes := pieceLog(s)
 	i := GetLogFileIo()
 	defer func(i *os.File) {
@@ -19,6 +19,7 @@ func LogInfo(message string) {
 
 		}
 	}(i)
+	log.SetFlags(log.Lmicroseconds | log.Ldate)
 	log.SetOutput(i)
 	log.Println(s)
 	fmt.Println(logMes)
@@ -26,7 +27,7 @@ func LogInfo(message string) {
 
 // LogWarning 记录warning级别日志
 func LogWarning(message string) {
-	s := " WARNING: " + message
+	s := " [WARNING]: " + message
 	logMes := pieceLog(s)
 	i := GetLogFileIo()
 	defer func(i *os.File) {
@@ -35,6 +36,7 @@ func LogWarning(message string) {
 
 		}
 	}(i)
+	log.SetFlags(log.Lmicroseconds | log.Ldate)
 	log.SetOutput(i)
 	log.Println(s)
 	fmt.Println(logMes)
@@ -42,7 +44,7 @@ func LogWarning(message string) {
 
 // LogError 记录error级别日志
 func LogError(message string) {
-	s := " ERROR: " + message
+	s := " [ERROR]: " + message
 	logMes := pieceLog(s)
 	i := GetLogFileIo()
 	defer func(i *os.File) {
@@ -51,6 +53,7 @@ func LogError(message string) {
 
 		}
 	}(i)
+	log.SetFlags(log.Lmicroseconds | log.Ldate)
 	log.SetOutput(i)
 	log.Println(s)
 	fmt.Println(logMes)

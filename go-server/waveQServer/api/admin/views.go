@@ -59,7 +59,7 @@ func CreateGroup(c *gin.Context) {
 		comm.DisposeError(err, c)
 		return
 	}
-	_, err = groups.NewGroup([]byte(group["groupId"]))
+	_, err = groups.NewGroup(group["groupId"])
 	if err != nil {
 		comm.DisposeError(err, c)
 		return
@@ -85,7 +85,7 @@ func CreateQueue(c *gin.Context) {
 			comm.DisposeError(err, c)
 			return
 		}
-		err = groups.GetGroupById([]byte(groupId)).BindQueue(delayQueue)
+		err = groups.GetGroupById(groupId).BindQueue(delayQueue)
 		if err != nil {
 			comm.DisposeError(err, c)
 			return
@@ -97,7 +97,7 @@ func CreateQueue(c *gin.Context) {
 			comm.DisposeError(err, c)
 			return
 		}
-		err = groups.GetGroupById([]byte(groupId)).BindQueue(queue)
+		err = groups.GetGroupById(groupId).BindQueue(queue)
 		if err != nil {
 			comm.DisposeError(err, c)
 			return
