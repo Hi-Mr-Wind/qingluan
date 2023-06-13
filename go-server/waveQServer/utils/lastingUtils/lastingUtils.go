@@ -107,23 +107,10 @@ func GetOsType() string {
 
 // GetDataSql 根据系统类型获取应使用的数据库链接
 func GetDataSql() *gorm.DB {
-	s := logutil.GetPath() + string(filepath.Separator) + getOsType()
+	s := logutil.GetPath() + string(filepath.Separator) + "qingluan.db"
 	db, err := gorm.Open(sqlite.Open(s), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
 	return db
-}
-
-// 根据系统类型获取数据库文件
-func getOsType() string {
-	switch GetOsType() {
-	case "windows":
-		return "windata.dll"
-	case "linux":
-		return "linuxdata"
-	case "mac":
-		return "macdata"
-	}
-	return "linuxdata"
 }
