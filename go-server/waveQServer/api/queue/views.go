@@ -3,11 +3,11 @@ package queue
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"waveQServer/comm"
-	"waveQServer/core/groups"
-	"waveQServer/core/queue/queueImpl"
-	"waveQServer/identity"
-	"waveQServer/utils/logutil"
+	"waveQServer/src/comm"
+	"waveQServer/src/core/groups"
+	"waveQServer/src/core/queue/queueImpl"
+	"waveQServer/src/identity"
+	"waveQServer/src/utils/logutil"
 )
 
 func pull(c *gin.Context) {

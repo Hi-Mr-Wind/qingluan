@@ -1,7 +1,7 @@
 package admin
 
 import (
-	"waveQServer/utils/httpUtils"
+	"waveQServer/src/utils/httpUtils"
 )
 
 // Include admin路由组模块

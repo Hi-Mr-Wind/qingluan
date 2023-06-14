@@ -3,14 +3,14 @@ package admin
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"waveQServer/comm"
-	"waveQServer/config"
-	"waveQServer/core/groups"
-	"waveQServer/core/queue/queueImpl"
-	"waveQServer/identity"
-	"waveQServer/utils"
-	"waveQServer/utils/jwtutil"
-	"waveQServer/utils/logutil"
+	"waveQServer/src/comm"
+	"waveQServer/src/config"
+	"waveQServer/src/core/groups"
+	queueImpl2 "waveQServer/src/core/queue/queueImpl"
+	"waveQServer/src/identity"
+	"waveQServer/src/utils"
+	"waveQServer/src/utils/jwtutil"
+	"waveQServer/src/utils/logutil"
 )
 
 // Login 管理员登录
@@ -80,7 +80,7 @@ func CreateQueue(c *gin.Context) {
 	squeueId := group["queueId"]
 	switch queueType {
 	case "1":
-		delayQueue, err := queueImpl.NewDelayQueue([]byte(squeueId))
+		delayQueue, err := queueImpl2.NewDelayQueue([]byte(squeueId))
 		if err != nil {
 			comm.DisposeError(err, c)
 			return
@@ -92,7 +92,7 @@ func CreateQueue(c *gin.Context) {
 		}
 		break
 	case "2":
-		queue, err := queueImpl.NewBroadcastQueue([]byte(squeueId))
+		queue, err := queueImpl2.NewBroadcastQueue([]byte(squeueId))
 		if err != nil {
 			comm.DisposeError(err, c)
 			return
