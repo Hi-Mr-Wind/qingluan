@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 	"waveQServer/src/comm"
+	"waveQServer/src/core/database"
+	"waveQServer/src/core/database/dto"
 	"waveQServer/src/utils"
 	"waveQServer/src/utils/jwtutil"
 	"waveQServer/src/utils/logutil"
@@ -82,12 +85,25 @@ func Token(c *gin.Context) {
 	return
 }
 
-// VerifyUser 检查请求中是否包含apikey
+// VerifyUser 检查请求中的key的合法性
 func VerifyUser(c *gin.Context) {
 	apiKey := c.Request.Header.Get("API_KEY")
 	if utils.IsEmpty(apiKey) {
 		c.JSON(http.StatusForbidden, comm.Fail("Unknown client!"))
 		c.Abort()
 		return
+	}
+	user := new(dto.User)
+	database.GetDb().Find(&user, "api_key = ?", apiKey)
+	parse, err := time.Parse("2006-01-02 15:04:05", user.ExpirationTime)
+	if err != nil {
+		logutil.LogError(err.Error())
+		return
+	}
+	if utils.IsEmpty(user.ExpirationTime) {
+		return
+	}
+	if parse.UnixNano() < time.Now().UnixNano() {
+		c.JSON(http.StatusForbidden, comm.Fail("This key has expired"))
 	}
 }
