@@ -1,7 +1,7 @@
 package router
 
 import (
-	"waveQServer/api/admin"
+	"waveQServer/src/api/admin"
 	"waveQServer/src/utils/httpUtils"
 	"waveQServer/src/utils/logutil"
 )

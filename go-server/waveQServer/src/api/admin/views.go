@@ -4,7 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"waveQServer/src/comm"
-	"waveQServer/src/config"
+	"waveQServer/src/core/database"
+	"waveQServer/src/core/database/dto"
 	"waveQServer/src/core/groups"
 	queueImpl2 "waveQServer/src/core/queue/queueImpl"
 	"waveQServer/src/identity"
@@ -24,13 +25,23 @@ func Login(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	if utils.NotEquals(config.GetConfig().UserName, utils.Md5([]byte(admin.UserName))) {
+	adm := new(dto.Admin)
+	md5 := utils.Md5([]byte(admin.UserName))
+	database.GetDb().Where("user_name = ?", md5).Find(&adm)
+	if utils.IsEmpty(adm.Id) {
+		logutil.LogInfo("login failure! The account or password is incorrect.")
+		fail := comm.Fail("login failure! The account or password is incorrect.")
+		c.JSON(http.StatusBadRequest, fail)
+		c.Abort()
+		return
+	}
+	if utils.NotEquals(adm.UserName, utils.Md5([]byte(admin.UserName))) {
 		fail := comm.Fail("username error")
 		c.JSON(http.StatusBadRequest, fail)
 		c.Abort()
 		return
 	}
-	if utils.NotEquals(config.GetConfig().Password, utils.Md5([]byte(admin.Password))) {
+	if utils.NotEquals(adm.Password, utils.Md5([]byte(admin.Password))) {
 		fail := comm.Fail("password error")
 		c.JSON(http.StatusBadRequest, fail)
 		c.Abort()
@@ -68,6 +79,7 @@ func CreateGroup(c *gin.Context) {
 	return
 }
 
+// CreateQueue 创建队列
 func CreateQueue(c *gin.Context) {
 	group := make(map[string]string)
 	err := c.ShouldBindJSON(group)
