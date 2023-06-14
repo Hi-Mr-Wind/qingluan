@@ -24,6 +24,8 @@ type Configuration struct {
 	UserName string `json:"userName"`
 	//管理员密码
 	Password string `json:"password"`
+	//消息持有时间，单位天
+	PossessTime int32 `json:"possessTime"`
 }
 
 // NewConfiguration 构造方法，用于构建Configuration实体并赋予默认值
