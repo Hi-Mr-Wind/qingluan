@@ -5,58 +5,58 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 )
 
-// LogInfo 记录info级别日志
-func LogInfo(message string) {
-	s := " [INFO]: " + message
-	logMes := pieceLog(s)
-	i := GetLogFileIo()
-	defer func(i *os.File) {
-		err := i.Close()
-		if err != nil {
+var (
+	logLock = sync.Mutex{}
+	fileLog *os.File
+	logName string
+)
 
+// 初始化日志
+func logInit(prefix string) *log.Logger {
+	name := getLogFileName()
+	if name != logName {
+		err := fileLog.Close()
+		if err != nil {
+			panic(err)
 		}
-	}(i)
-	log.SetFlags(log.Lmicroseconds | log.Ldate)
-	log.SetOutput(i)
-	log.Println(s)
-	fmt.Println(logMes)
+		logName = name
+		fileLog = getLogFileIo()
+	}
+	return log.New(fileLog, prefix, log.Lmicroseconds|log.Ldate)
+}
+
+// LogInfo 记录info级别日志
+func LogInfo(message string, v ...any) {
+	logLock.Lock()
+	defer logLock.Unlock()
+	info := logInit("[INFO] ")
+	fmt.Printf(message, v)
+	info.Printf(message, v)
+	fmt.Println()
 }
 
 // LogWarning 记录warning级别日志
-func LogWarning(message string) {
-	s := " [WARNING]: " + message
-	logMes := pieceLog(s)
-	i := GetLogFileIo()
-	defer func(i *os.File) {
-		err := i.Close()
-		if err != nil {
-
-		}
-	}(i)
-	log.SetFlags(log.Lmicroseconds | log.Ldate)
-	log.SetOutput(i)
-	log.Println(s)
-	fmt.Println(logMes)
+func LogWarning(message string, v ...any) {
+	logLock.Lock()
+	defer logLock.Unlock()
+	info := logInit("[WARNING] ")
+	fmt.Printf(message, v)
+	info.Printf(message, v)
+	fmt.Println()
 }
 
 // LogError 记录error级别日志
-func LogError(message string) {
-	s := " [ERROR]: " + message
-	logMes := pieceLog(s)
-	i := GetLogFileIo()
-	defer func(i *os.File) {
-		err := i.Close()
-		if err != nil {
-
-		}
-	}(i)
-	log.SetFlags(log.Lmicroseconds | log.Ldate)
-	log.SetOutput(i)
-	log.Println(s)
-	fmt.Println(logMes)
+func LogError(message string, v ...any) {
+	logLock.Lock()
+	defer logLock.Unlock()
+	info := logInit("[ERROR] ")
+	fmt.Printf(message, v)
+	info.Printf(message, v)
+	fmt.Println()
 }
 
 // 拼合日志信息
@@ -65,8 +65,8 @@ func pieceLog(message string) string {
 }
 
 // GetLogFileIo 获取日志文件的io
-func GetLogFileIo() *os.File {
-	f, err := os.OpenFile(getLogFileName(), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
+func getLogFileIo() *os.File {
+	f, err := os.OpenFile(logName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -95,4 +95,11 @@ func GetPath() string {
 		panic(err)
 	}
 	return absPath + string(filepath.Separator)
+}
+
+func init() {
+	//初始化日志名称
+	logName = getLogFileName()
+	// 初始化日志io
+	fileLog = getLogFileIo()
 }

@@ -3,15 +3,17 @@ package database
 import (
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
+	"path/filepath"
 	"time"
+	"waveQServer/src/utils/logutil"
 )
 
 var qdb *gorm.DB
 
 // 初始化数据库链接
 func init() {
-	//s := logutil.GetPath() + "lib" + string(filepath.Separator) + "qingluan.db"
-	s := "E:\\waveQ\\go-server\\waveQServer\\lib\\qingluan.db"
+	s := logutil.GetPath() + "lib" + string(filepath.Separator) + "qingluan.db"
+	//s := "/lib/qingluan.db"
 	db, err := gorm.Open(sqlite.Open(s), &gorm.Config{})
 	sqlDB, err := db.DB()
 	if err != nil {

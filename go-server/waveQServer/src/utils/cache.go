@@ -52,21 +52,23 @@ func GetUser(apiKey string) *dto.User {
 }
 
 func init() {
-	//查询所有的apikey并缓存
-	user := new([]dto.User)
-	database.GetDb().Find(&user)
-	apiKeys = *user
+	go func() {
+		//查询所有的apikey并缓存
+		user := new([]dto.User)
+		database.GetDb().Find(&user)
+		apiKeys = *user
 
-	fmt.Println("加载apikey缓存完成", apiKeys)
-	//加载apikey下的权限
-	for _, o := range apiKeys {
-		limit := new([]dto.QueueUeser)
-		list := make([]string, 10)
-		database.GetDb().Find(&limit, "user_id = ?", o.ApiKey)
-		for _, v := range *limit {
-			list = append(list, v.QueueId)
+		fmt.Println("加载apikey缓存完成", apiKeys)
+		//加载apikey下的权限
+		for _, o := range apiKeys {
+			limit := new([]dto.QueueUeser)
+			list := make([]string, 10)
+			database.GetDb().Find(&limit, "user_id = ?", o.ApiKey)
+			for _, v := range *limit {
+				list = append(list, v.QueueId)
+			}
+			limits[o.ApiKey] = list
 		}
-		limits[o.ApiKey] = list
-	}
-	fmt.Println("加载权限缓存完成", limits)
+		fmt.Println("加载权限缓存完成", limits)
+	}()
 }
