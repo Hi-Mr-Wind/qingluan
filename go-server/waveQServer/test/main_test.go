@@ -2,7 +2,6 @@ package test
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 	"time"
 	"waveQServer/src/core/database"
@@ -47,17 +46,20 @@ func TestLog(t *testing.T) {
 }
 
 func TestMes(t *testing.T) {
-	var mes = make([]message.Message, 0, 5)
-	subMessage := message.SubMessage{}
-	randmoMes := message.RandomMessage{}
-	mes = append(mes, &subMessage)
-	mes = append(mes, &randmoMes)
-	for _, v := range mes {
-		//reflect.TypeOf(v).Kind()
-		//randomMessage, ok := v.(*message.RandomMessage)
-		//if ok {
-		//
-		//}
-		fmt.Println("类型", reflect.TypeOf(v).Elem())
-	}
+	//mes := message.SubMessage{
+	//	Heard: message.Heard{
+	//		MessageId:  "hefgbdfage",
+	//		ProducerId: "asfqdacxasdqwcqwd",
+	//		QueueId:    "c196de8f-d2d6-60d9-6092-c20433d156b3",
+	//		Timestamp:  1687276300870,
+	//		SendTime:   1687276300870,
+	//		Indate:     0,
+	//	},
+	//	Subscriber: []string{"45a64421-35cc-6465-2046-3df88078542b"},
+	//	Body:       []byte{2, 122, 98, 254},
+	//}
+	//message.SetCachedSubMessage(&mes)
+
+	subMessage := message.GetCachedSubMessage("hefgbdfage")
+	fmt.Println("查询到的数据为", subMessage)
 }

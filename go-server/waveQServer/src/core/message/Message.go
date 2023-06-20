@@ -9,17 +9,17 @@ type Message interface {
 // Heard 消息头
 type Heard struct {
 	//消息id
-	Id string `json:"id"`
+	MessageId string `json:"id"`
 	//生产者ID
-	ProducerID string `json:"producerID"`
+	ProducerId string `json:"producerID"`
+	//所属队列ID
+	QueueId string `json:"queueID"`
 	// 消息生成的时间戳
 	Timestamp int64 `json:"timestamp"`
 	//发送时间
 	SendTime int64 `json:"sendTime"`
-	//所属队列ID
-	QueueID string `json:"queueID"`
 	//有效期
-	Indate int32 `json:"indate"`
+	Indate int64 `json:"indate"`
 }
 
 // SubMessage 订阅消息
@@ -27,7 +27,7 @@ type SubMessage struct {
 	//消息锁
 	lock sync.Mutex
 	//消息头
-	Header Heard `json:"header"`
+	Heard `json:"header"`
 	//订阅者id
 	Subscriber []string `json:"subscriber"`
 	//正文
@@ -35,7 +35,7 @@ type SubMessage struct {
 }
 
 func (message *SubMessage) GetHeader() *Heard {
-	return &message.Header
+	return &message.Heard
 }
 
 // RandomMessage 随机消息
@@ -43,7 +43,7 @@ type RandomMessage struct {
 	//消息锁
 	lock sync.Mutex
 	//消息头
-	Heard Heard `json:"heard"`
+	Heard `json:"heard"`
 	//随机权重
 	Weight int `json:"weight,omitempty"`
 	//可消费次数
@@ -62,11 +62,43 @@ type ExclusiveMessage struct {
 	//消息锁
 	lock sync.Mutex
 	//消息头
-	Heard Heard `json:"heard"`
+	Heard `json:"heard"`
 	//消息正文
 	Body []byte `json:"body,omitempty"`
 }
 
 func (message *ExclusiveMessage) GetHeader() *Heard {
+	return &message.Heard
+}
+
+// WeightMessage 权重消息
+type WeightMessage struct {
+	//消息锁
+	lock sync.Mutex
+	//消息头
+	Heard `json:"heard"`
+	//消息权重
+	Weight int `json:"weight,omitempty"`
+	//消息正文
+	Body []byte `json:"body,omitempty"`
+}
+
+func (message *WeightMessage) GetHeader() *Heard {
+	return &message.Heard
+}
+
+// DelayedMessage 延迟消息
+type DelayedMessage struct {
+	//消息锁
+	lock sync.Mutex
+	//消息头
+	Heard `json:"heard"`
+	// 延迟时间 毫秒
+	Delayed int64 `json:"delayed"`
+	//消息正文
+	Body []byte `json:"body,omitempty"`
+}
+
+func (message *DelayedMessage) GetHeader() *Heard {
 	return &message.Heard
 }

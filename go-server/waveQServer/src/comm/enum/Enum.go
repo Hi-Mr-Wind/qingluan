@@ -14,4 +14,8 @@ const (
 	SubMessage
 	// ExclusiveMessage 独享消息
 	ExclusiveMessage
+	// WeightMessage 权重消息
+	WeightMessage
+	// DelayedMessage 延迟消息
+	DelayedMessage
 )

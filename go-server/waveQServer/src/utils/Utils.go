@@ -149,3 +149,13 @@ func walkFunc(path string, info os.FileInfo, err error) error {
 	}
 	return nil
 }
+
+// ListToStr 切片转字符串，以“,”分隔
+func ListToStr(list []string) string {
+	return strings.Join(list, ",")
+}
+
+// StrToList 将“，”分隔的字符串转化为切片
+func StrToList(str string) []string {
+	return strings.Split(str, ",")
+}
