@@ -21,9 +21,9 @@ func SetCachedMessage(mes *Message) {
 	database.GetDb().Create(&messages)
 }
 
-func GetCachedMessage(mesId string) *Message {
-	messages := new(dto.Messages)
-	database.GetDb().Find(messages)
-
-	return messages
-}
+//func GetCachedMessage(mesId string) *Message {
+//	messages := new(dto.Messages)
+//	database.GetDb().Find(messages, "message_id = ?", mesId)
+//
+//	return messages
+//}

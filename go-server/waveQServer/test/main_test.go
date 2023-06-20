@@ -2,10 +2,12 @@ package test
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 	"waveQServer/src/core/database"
 	"waveQServer/src/core/database/dto"
+	"waveQServer/src/core/message"
 	"waveQServer/src/utils"
 	"waveQServer/src/utils/logutil"
 )
@@ -42,4 +44,20 @@ func TestLog(t *testing.T) {
 	}()
 	<-ch
 	<-ch1
+}
+
+func TestMes(t *testing.T) {
+	var mes = make([]message.Message, 0, 5)
+	subMessage := message.SubMessage{}
+	randmoMes := message.RandomMessage{}
+	mes = append(mes, &subMessage)
+	mes = append(mes, &randmoMes)
+	for _, v := range mes {
+		//reflect.TypeOf(v).Kind()
+		//randomMessage, ok := v.(*message.RandomMessage)
+		//if ok {
+		//
+		//}
+		fmt.Println("类型", reflect.TypeOf(v).Elem())
+	}
 }

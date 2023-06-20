@@ -59,4 +59,14 @@ func (message *RandomMessage) GetHeader() *Heard {
 // ExclusiveMessage 独享消息
 // 独享消息只能有一个队列消费一次，消费后则消息
 type ExclusiveMessage struct {
+	//消息锁
+	lock sync.Mutex
+	//消息头
+	Heard Heard `json:"heard"`
+	//消息正文
+	Body []byte `json:"body,omitempty"`
+}
+
+func (message *ExclusiveMessage) GetHeader() *Heard {
+	return &message.Heard
 }
