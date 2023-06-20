@@ -4,9 +4,8 @@ import (
 	"errors"
 	"sync"
 	"time"
-	"waveQServer/src/entity/message"
+	"waveQServer/src/core/message"
 	"waveQServer/src/identity"
-	"waveQServer/src/utils/lastingUtils"
 )
 
 // DelayQueue 延迟队列结构
@@ -58,11 +57,6 @@ func (q *DelayQueue) Push(mes *message.Message) {
 	if int32(len(q.messages)) >= q.Capacity {
 
 	}
-	//获取前条消息的ID
-	e := q.messages[len(q.messages)-1]
-	mes.Header.FormerId = e.Header.Id
-	// 异步将消息持久化
-	go lastingUtils.AsyncMessage(mes)
 	q.messages = append(q.messages, *mes)
 }
 

@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 	"io"
@@ -50,7 +51,7 @@ func ReadFile(path string) ([]byte, error) {
 
 // GetFileSize 获取文件大小（KB）单位 近似值
 func GetFileSize(filePath string) (int32, error) {
-	fileInfo, err := os.Stat("example.txt")
+	fileInfo, err := os.Stat(filePath)
 	if err != nil {
 		logutil.LogError(err.Error())
 		return 0, err
@@ -110,11 +111,32 @@ func NotEquals[T comparable](t T, m T) bool {
 	return !Equals(t, m)
 }
 
+// IsEmpty 字符串为空
 func IsEmpty(data string) bool {
-	if data == "" || len([]byte(data)) == 0 {
+	if len(data) == 0 {
 		return true
 	}
 	return false
+}
+
+// IsNull 判断指针为nil
+func IsNull(data *any) bool {
+	return data == nil
+}
+
+// IsNotNull 判断指针为非nil
+func IsNotNull(data *any) bool {
+	return !IsNull(data)
+}
+
+// ToJsonString 结构体转json字符串
+func ToJsonString(date any) string {
+	data, err := json.Marshal(date)
+	if err != nil {
+		fmt.Println("JSON encoding error:", err)
+		return ""
+	}
+	return string(data)
 }
 
 func walkFunc(path string, info os.FileInfo, err error) error {

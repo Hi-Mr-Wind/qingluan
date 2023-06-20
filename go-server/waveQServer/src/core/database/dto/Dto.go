@@ -66,3 +66,16 @@ type GroupQueue struct {
 func (g *GroupQueue) TableName() string {
 	return "group_queue"
 }
+
+// Messages 消息缓存
+type Messages struct {
+	MessageId string `gorm:"primaryKey;autoIncrement:false"`
+	DataJson  string
+	DateType  string
+	QueueId   string
+	CreatTime string
+}
+
+func (m *Messages) TableName() string {
+	return "message"
+}
