@@ -67,7 +67,7 @@ func (g *GroupQueue) TableName() string {
 	return "group_queue"
 }
 
-// RandomMessage 权重随机队列
+// RandomMessage 权重随机消息
 type RandomMessage struct {
 	//消息ID
 	MessageId string `gorm:"column:message_id;primary_key"`
@@ -139,7 +139,7 @@ func (m *WeightMessage) TableName() string {
 	return "weight_message"
 }
 
-// DelayedMessage 权重消息
+// DelayedMessage 延迟消息
 type DelayedMessage struct {
 	//消息ID
 	MessageId string `gorm:"column:message_id;primary_key"`

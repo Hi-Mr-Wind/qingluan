@@ -45,9 +45,9 @@ type RandomMessage struct {
 	//消息头
 	Heard `json:"heard"`
 	//随机权重
-	Weight int `json:"weight,omitempty"`
+	Weight int32 `json:"weight,omitempty"`
 	//可消费次数
-	Number int `json:"number,omitempty"`
+	Number int32 `json:"number,omitempty"`
 	//消息正文
 	Body []byte `json:"body,omitempty"`
 }
@@ -78,7 +78,7 @@ type WeightMessage struct {
 	//消息头
 	Heard `json:"heard"`
 	//消息权重
-	Weight int `json:"weight,omitempty"`
+	Weight int32 `json:"weight,omitempty"`
 	//消息正文
 	Body []byte `json:"body,omitempty"`
 }

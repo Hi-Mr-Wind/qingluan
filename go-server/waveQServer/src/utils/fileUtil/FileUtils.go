@@ -4,6 +4,7 @@ import (
 	"os"
 )
 
+// BufferWrite 带缓冲的文件写出
 type BufferWrite struct {
 	file  *os.File
 	data  []byte
