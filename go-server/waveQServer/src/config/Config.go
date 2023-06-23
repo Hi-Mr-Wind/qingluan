@@ -34,9 +34,10 @@ func NewConfiguration() *Configuration {
 	conf.Port = 9627
 	conf.DataPath = logutil.GetPath() + "data"
 	conf.HeartBeat = 60
-	conf.DataFileSize = 100 * 1024
+	conf.DataFileSize = 1024 * 1024
 	conf.UserName = utils.Md5([]byte("Admin"))
 	conf.Password = utils.Md5([]byte("Admin"))
+	conf.PossessTime = 7
 	config = conf
 	return conf
 }
