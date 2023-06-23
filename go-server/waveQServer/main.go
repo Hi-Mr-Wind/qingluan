@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"waveQServer/src/comm"
 	"waveQServer/src/config"
-	"waveQServer/src/router"
+	"waveQServer/src/controller"
 	"waveQServer/src/utils/logutil"
 )
 
@@ -23,5 +23,5 @@ func main() {
 	gin.SetMode(gin.ReleaseMode) //开启生产环境
 	logutil.LogInfo("QingLuan is started successfully. Port number:" + strconv.Itoa(int(config.GetConfig().Port)))
 	//启动gin服务
-	router.Start(":" + strconv.Itoa(int(config.GetConfig().Port)))
+	controller.Start(":" + strconv.Itoa(int(config.GetConfig().Port)))
 }

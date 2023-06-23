@@ -6,79 +6,24 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
-	"io"
-	"io/ioutil"
-	"os"
-	"path/filepath"
+	"runtime"
+	"strconv"
 	"strings"
 	"time"
-	"waveQServer/src/utils/logutil"
 )
 
-var pathsArray = make([]string, 1, 10)
-
-// WriteFile 写入文件
-func WriteFile(path string, data []byte) error {
-	file, err := os.Create(path)
-	if err != nil {
-		logutil.LogError(err.Error())
-		return err
-	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			logutil.LogError(err.Error())
-		}
-	}(file)
-	_, err = io.WriteString(file, string(data))
-	if err != nil {
-		logutil.LogError(err.Error())
-		return err
-	}
-	return nil
-}
-
-// ReadFile 读取文件
-func ReadFile(path string) ([]byte, error) {
-	file, err := ioutil.ReadFile(path)
-	if err != nil {
-		logutil.LogError(err.Error())
-		return nil, err
-	}
-	return file, nil
-}
-
-// GetFileSize 获取文件大小（KB）单位 近似值
-func GetFileSize(filePath string) (int32, error) {
-	fileInfo, err := os.Stat(filePath)
-	if err != nil {
-		logutil.LogError(err.Error())
-		return 0, err
-	}
-	size := fileInfo.Size()
-	return int32(float64(size) / 1024), nil // 输出结果
-}
-
-// GetPathFiles 获取指定目录下所有.data文件
-func GetPathFiles(path string) []string {
-	err := filepath.Walk(path, walkFunc)
-	if err != nil {
-		logutil.LogError(err.Error())
-		return nil
-	}
-	return pathsArray
-}
+type Def func()
 
 // GetApiKey 根据权限和随机ID生成一个唯一性的apikey
-func GetApiKey(rccessRights []string) string {
-	data := make([]byte, 50, 100)
-	for i := 0; i < len(rccessRights); i++ {
-		for j := 0; j < len(rccessRights[i]); j++ {
-			data = append(data, rccessRights[i][j])
+func GetApiKey(recessRights []string) string {
+	data := make([]byte, 50, 200)
+	for i := 0; i < len(recessRights); i++ {
+		for j := 0; j < len(recessRights[i]); j++ {
+			data = append(data, recessRights[i][j])
 		}
 	}
-	id := []byte(uuid.New().String())
+	//拿到一个纳秒级别的16进制时间字符串，此处用纳秒是因为纳秒的时间精度极高，产生出重复的概率可以忽略不计
+	id := []byte(strconv.FormatInt(time.Now().UnixNano(), 16))
 	data = append(data, id...)
 	// 创建一个 SHA256 的哈希实例
 	hash := sha256.New()
@@ -86,6 +31,11 @@ func GetApiKey(rccessRights []string) string {
 	hash.Write(data)
 	// 计算 SHA256 哈希值的字节数组
 	hashBytes := hash.Sum(nil)
+	//gc回收垃圾对象
+	defer func() {
+		data = nil
+		runtime.GC()
+	}()
 	// 将字节数组格式化为十六进制字符串
 	return fmt.Sprintf("%x", hashBytes)
 }
@@ -139,17 +89,6 @@ func ToJsonString(date any) string {
 	return string(data)
 }
 
-func walkFunc(path string, info os.FileInfo, err error) error {
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	if !info.IsDir() && strings.HasSuffix(path, ".data") {
-		pathsArray = append(pathsArray, path)
-	}
-	return nil
-}
-
 // ListToStr 切片转字符串，以“,”分隔
 func ListToStr(list []string) string {
 	return strings.Join(list, ",")
@@ -158,4 +97,9 @@ func ListToStr(list []string) string {
 // StrToList 将“，”分隔的字符串转化为切片
 func StrToList(str string) []string {
 	return strings.Split(str, ",")
+}
+
+// TimeTask 设置一个一次性的定时器
+func TimeTask(t time.Duration, f Def) {
+	time.AfterFunc(time.Millisecond*t, f)
 }

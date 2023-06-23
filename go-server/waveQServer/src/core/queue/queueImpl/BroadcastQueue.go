@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 	"waveQServer/src/core/message"
-	"waveQServer/src/identity"
+	"waveQServer/src/entity"
 	"waveQServer/src/utils/logutil"
 )
 
@@ -23,7 +23,7 @@ type BroadcastQueue struct {
 	messages []message.Message
 
 	//消费者
-	monitor map[string]*identity.User
+	monitor map[string]*entity.User
 
 	//创建时间
 	createTime time.Time
@@ -70,12 +70,12 @@ func (q *BroadcastQueue) Pull(index int32) *message.Message {
 		logutil.LogInfo(q.GroupId + " --queue:" + q.QueueId + "is nonentity message ")
 		return nil
 	}
-	identity.User{}.MessageChan <- &q.messages[index]
+	entity.User{}.MessageChan <- &q.messages[index]
 	return &q.messages[index]
 }
 
 // AddUser 添加一个队列消费者
-func (q *BroadcastQueue) AddUser(user *identity.User) {
+func (q *BroadcastQueue) AddUser(user *entity.User) {
 	q.monitor[user.ApiKey] = user
 }
 

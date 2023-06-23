@@ -1,7 +1,7 @@
-package router
+package controller
 
 import (
-	"waveQServer/src/api/admin"
+	"waveQServer/src/controller/admin"
 	"waveQServer/src/utils/httpUtils"
 	"waveQServer/src/utils/logutil"
 )

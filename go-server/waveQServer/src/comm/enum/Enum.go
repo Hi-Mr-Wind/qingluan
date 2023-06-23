@@ -19,3 +19,11 @@ const (
 	// DelayedMessage 延迟消息
 	DelayedMessage
 )
+
+// 消息状态
+const (
+	// NORMAL 正常
+	NORMAL = iota
+	// OVER_TIME 超时
+	OVER_TIME
+)

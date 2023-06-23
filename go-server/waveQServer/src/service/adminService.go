@@ -1,14 +1,12 @@
-package admin
+package service
 
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"waveQServer/src/comm"
 	"waveQServer/src/core/database"
-	"waveQServer/src/core/database/dto"
 	"waveQServer/src/core/groups"
-	queueImpl2 "waveQServer/src/core/queue/queueImpl"
-	"waveQServer/src/identity"
+	"waveQServer/src/entity"
 	"waveQServer/src/utils"
 	"waveQServer/src/utils/jwtutil"
 	"waveQServer/src/utils/logutil"
@@ -16,7 +14,7 @@ import (
 
 // Login 管理员登录
 func Login(c *gin.Context) {
-	admin := identity.NewAdmin()
+	admin := entity.NewAdmin()
 	err := c.ShouldBindJSON(admin)
 	if err != nil {
 		logutil.LogError(err.Error())
@@ -25,7 +23,7 @@ func Login(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	adm := new(dto.Admin)
+	adm := new(entity.Admin)
 	md5 := utils.Md5([]byte(admin.UserName))
 	database.GetDb().Where("user_name = ?", md5).Find(&adm)
 	if utils.IsEmpty(adm.Id) {
@@ -77,44 +75,4 @@ func CreateGroup(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, comm.OK())
 	return
-}
-
-// CreateQueue 创建队列
-func CreateQueue(c *gin.Context) {
-	group := make(map[string]string)
-	err := c.ShouldBindJSON(group)
-	if err != nil {
-		comm.DisposeError(err, c)
-		return
-	}
-	queueType := group["queueType"]
-	groupId := group["GroupId"]
-	squeueId := group["queueId"]
-	switch queueType {
-	case "1":
-		delayQueue, err := queueImpl2.NewDelayQueue([]byte(squeueId))
-		if err != nil {
-			comm.DisposeError(err, c)
-			return
-		}
-		err = groups.GetGroupById(groupId).BindQueue(delayQueue)
-		if err != nil {
-			comm.DisposeError(err, c)
-			return
-		}
-		break
-	case "2":
-		queue, err := queueImpl2.NewBroadcastQueue([]byte(squeueId))
-		if err != nil {
-			comm.DisposeError(err, c)
-			return
-		}
-		err = groups.GetGroupById(groupId).BindQueue(queue)
-		if err != nil {
-			comm.DisposeError(err, c)
-			return
-		}
-		break
-	}
-
 }

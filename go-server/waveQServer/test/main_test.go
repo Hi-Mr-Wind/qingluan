@@ -2,11 +2,12 @@ package test
 
 import (
 	"fmt"
+	"runtime"
+	"strconv"
 	"testing"
 	"time"
 	"waveQServer/src/core/database"
-	"waveQServer/src/core/database/dto"
-	"waveQServer/src/core/message"
+	"waveQServer/src/entity"
 	"waveQServer/src/utils"
 	"waveQServer/src/utils/logutil"
 )
@@ -19,7 +20,7 @@ func TestMd5(t *testing.T) {
 
 // 测试数据库连接
 func TestDb(t *testing.T) {
-	admin := new(dto.Admin)
+	admin := new(entity.Admin)
 	database.GetDb().Model(admin).Find(&admin)
 	fmt.Println(*admin)
 	admin.Id = "123123"
@@ -45,7 +46,30 @@ func TestLog(t *testing.T) {
 	<-ch1
 }
 
+func TestApikey(t *testing.T) {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	fmt.Printf("当前内存占用量：%d KB\n", m.Alloc/1024)
+	a := []string{"c196de8f-d2d6-60d9-6092-c20433d156b3", "12D1E", "cqw12的饿", "dqw3dasdqwd"}
+	key := utils.GetApiKey(a)
+	fmt.Println(key)
+
+	// 再次读取内存占用情况
+	runtime.ReadMemStats(&m)
+	fmt.Printf("回收后内存占用量：%d KB\n", m.Alloc/1024)
+
+	b := []string{"c196de8f-d2d6-60d9-6092-c20433d156b3", "test_group"}
+	key = utils.GetApiKey(b)
+	fmt.Println(key)
+
+	// 再次读取内存占用情况
+	runtime.ReadMemStats(&m)
+	fmt.Printf("回收后内存占用量：%d KB\n", m.Alloc/1024)
+}
+
 func TestMes(t *testing.T) {
+	formatInt := strconv.FormatInt(time.Now().UnixNano(), 16)
+	fmt.Println(formatInt)
 	//mes := message.SubMessage{
 	//	Heard: message.Heard{
 	//		MessageId:  "hefgbdfage",
@@ -60,6 +84,6 @@ func TestMes(t *testing.T) {
 	//}
 	//message.SetCachedSubMessage(&mes)
 
-	subMessage := message.GetCachedSubMessage("hefgbdfage")
-	fmt.Println("查询到的数据为", subMessage)
+	//subMessage := message.GetCachedSubMessage("hefgbdfage")
+	//fmt.Println("查询到的数据为", subMessage)
 }

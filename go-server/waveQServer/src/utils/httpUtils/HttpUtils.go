@@ -6,8 +6,7 @@ import (
 	"net/http"
 	"time"
 	"waveQServer/src/comm"
-	"waveQServer/src/core/database"
-	"waveQServer/src/core/database/dto"
+	"waveQServer/src/core/cache"
 	"waveQServer/src/utils"
 	"waveQServer/src/utils/jwtutil"
 	"waveQServer/src/utils/logutil"
@@ -93,17 +92,21 @@ func VerifyUser(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	user := new(dto.User)
-	database.GetDb().Find(&user, "api_key = ?", apiKey)
-	parse, err := time.Parse("2006-01-02 15:04:05", user.ExpirationTime)
-	if err != nil {
-		logutil.LogError(err.Error())
+	//如果apikey并不存在
+	if !cache.IsInKeys(apiKey) {
+		c.JSON(http.StatusForbidden, comm.Fail("Unknown client!"))
+		c.Abort()
 		return
 	}
-	if utils.IsEmpty(user.ExpirationTime) {
-		return
-	}
-	if parse.UnixNano() < time.Now().UnixNano() {
-		c.JSON(http.StatusForbidden, comm.Fail("This key has expired"))
+	user := cache.GetUser(apiKey)
+	//用户期限是否是无限期
+	if user.ExpirationTime != -1 {
+		//如果api已经过期则删除
+		if user.ExpirationTime <= time.Now().UnixMilli() {
+			cache.DelApiKey(user.ApiKey)
+			c.JSON(http.StatusForbidden, comm.Fail("This key has expired"))
+			c.Abort()
+			return
+		}
 	}
 }

@@ -3,13 +3,13 @@ package queue
 import (
 	"waveQServer/src/core/message"
 	"waveQServer/src/core/queue/queueImpl"
-	"waveQServer/src/identity"
+	"waveQServer/src/entity"
 )
 
 type Queue interface {
 	Size() int32
 	Push(message *message.Message)
-	AddUser(user *identity.User)
+	AddUser(user *entity.User)
 	GetQueueId() string
 }
 

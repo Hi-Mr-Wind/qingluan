@@ -1,10 +1,10 @@
-package dto
+package entity
 
 // User 消费者用户
 type User struct {
 	Id             string `gorm:"column:id;primary_key;NOT NULL"`
 	ApiKey         string `gorm:"column:api_key"`
-	ExpirationTime string `gorm:"column:expiration_time"`
+	ExpirationTime int64  `gorm:"column:expiration_time"`
 	CreatTime      string `gorm:"column:creat_time"`
 }
 
@@ -38,6 +38,7 @@ func (g *Groups) TableName() string {
 type Queue struct {
 	QueueId   string `gorm:"column:queue_id;primary_key;NOT NULL"`
 	QueueType string `gorm:"column:queue_type"`
+	capacity  int32  `gorm:"column:capacity"`
 	CreatTime string `gorm:"column:creat_time"`
 }
 
@@ -45,14 +46,14 @@ func (q *Queue) TableName() string {
 	return "queue"
 }
 
-// QueueUeser 队列用户对应
-type QueueUeser struct {
+// QueueUser 队列用户对应
+type QueueUser struct {
 	Id      string `gorm:"column:id;primary_key;NOT NULL"`
 	UserId  string `gorm:"column:user_id"`
 	QueueId string `gorm:"column:queue_id"`
 }
 
-func (q *QueueUeser) TableName() string {
+func (q *QueueUser) TableName() string {
 	return "queue_ueser"
 }
 

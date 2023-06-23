@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 	"waveQServer/src/core/message"
-	"waveQServer/src/identity"
+	"waveQServer/src/entity"
 )
 
 // DelayQueue 延迟队列结构
@@ -23,7 +23,7 @@ type DelayQueue struct {
 	messages []message.Message
 
 	//消费者
-	monitor map[string]*identity.User
+	monitor map[string]*entity.User
 
 	//创建时间
 	createTime time.Time
@@ -67,13 +67,13 @@ func (q *DelayQueue) Pull() (*message.Message, error) {
 	if len(q.messages) == 0 {
 		return nil, errors.New("the queue is empty")
 	}
-	message := q.messages[0]
+	mess := q.messages[0]
 	q.messages = q.messages[1:]
-	return &message, nil
+	return &mess, nil
 }
 
 // AddUser 添加一个队列消费者
-func (q *DelayQueue) AddUser(user *identity.User) {
+func (q *DelayQueue) AddUser(user *entity.User) {
 	q.monitor[user.ApiKey] = user
 }
 

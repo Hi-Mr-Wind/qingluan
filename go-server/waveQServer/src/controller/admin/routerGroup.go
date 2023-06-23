@@ -1,8 +1,6 @@
 package admin
 
-import (
-	"waveQServer/src/utils/httpUtils"
-)
+import "waveQServer/src/utils/httpUtils"
 
 // Include admin路由组模块
 func Include() {
