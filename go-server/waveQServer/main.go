@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"os"
 	"strconv"
 	"waveQServer/src/comm"
@@ -11,7 +10,8 @@ import (
 )
 
 func main() {
-	logutil.LogInfo("QingLuan is starting.....")
+	comm.Play.Add(1)
+	logutil.LogInfo("QingLuan is loading.....")
 	logutil.LogInfo(comm.BANNER)
 	logutil.LogInfo("version: V" + comm.VERSION)
 	args := os.Args
@@ -20,8 +20,7 @@ func main() {
 	} else {
 		config.ReadConfiguration(args[1])
 	}
-	gin.SetMode(gin.ReleaseMode) //开启生产环境
-	logutil.LogInfo("QingLuan is started successfully. Port number:" + strconv.Itoa(int(config.GetConfig().Port)))
+	comm.Play.Wait()
 	//启动gin服务
 	controller.Start(":" + strconv.Itoa(int(config.GetConfig().Port)))
 }

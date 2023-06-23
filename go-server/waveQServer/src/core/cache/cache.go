@@ -2,8 +2,8 @@ package cache
 
 import (
 	"time"
+	"waveQServer/src/comm"
 	"waveQServer/src/core/database"
-	"waveQServer/src/core/message"
 	"waveQServer/src/entity"
 	"waveQServer/src/utils/logutil"
 )
@@ -72,17 +72,17 @@ func DelApiKey(apiKey string) {
 // 删除持久化中的apikey
 func delApikey(apikey string) {
 	database.GetDb().Where("api_key = ?", apikey).Delete(&entity.User{})
-	database.GetDb().Where("user_id = ?", apikey).Delete(&entity.QueueUeser{})
+	database.GetDb().Where("user_id = ?", apikey).Delete(&entity.QueueUser{})
 }
 
 // 删除过期的消息
 func deleteMessage() {
 	milli := time.Now().UnixMilli()
-	database.GetDb().Where("indate <= ?", milli).Delete(&message.SubMessage{})
-	database.GetDb().Where("indate <= ?", milli).Delete(&message.WeightMessage{})
-	database.GetDb().Where("indate <= ?", milli).Delete(&message.ExclusiveMessage{})
-	database.GetDb().Where("indate <= ?", milli).Delete(&message.DelayedMessage{})
-	database.GetDb().Where("indate <= ?", milli).Delete(&message.RandomMessage{})
+	database.GetDb().Where("indate <= ?", milli).Delete(&entity.SubMessage{})
+	database.GetDb().Where("indate <= ?", milli).Delete(&entity.WeightMessage{})
+	database.GetDb().Where("indate <= ?", milli).Delete(&entity.ExclusiveMessage{})
+	database.GetDb().Where("indate <= ?", milli).Delete(&entity.DelayedMessage{})
+	database.GetDb().Where("indate <= ?", milli).Delete(&entity.RandomMessage{})
 }
 
 // 删除过期的apikey
@@ -103,7 +103,7 @@ func loadingCache() {
 	apiKeys = *user
 	//加载apikey下的权限
 	for _, o := range apiKeys {
-		limit := new([]entity.QueueUeser)
+		limit := new([]entity.QueueUser)
 		list := make([]string, 10)
 		database.GetDb().Find(&limit, "user_id = ?", o.ApiKey)
 		for _, v := range *limit {
@@ -115,6 +115,7 @@ func loadingCache() {
 
 func init() {
 	go func() {
+		defer comm.Play.Done()
 		//删除未被清理的过期的apikey
 		logutil.LogInfo("Start deleting expired apikey……")
 		deletePastDueApiKey()

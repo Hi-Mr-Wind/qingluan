@@ -34,9 +34,7 @@ func LogInfo(message string, v ...any) {
 	logLock.Lock()
 	defer logLock.Unlock()
 	info := logInit("[INFO] ")
-	fmt.Printf(message, v)
-	info.Printf(message, v)
-	fmt.Println()
+	prints(info, message, v)
 }
 
 // LogWarning 记录warning级别日志
@@ -44,9 +42,7 @@ func LogWarning(message string, v ...any) {
 	logLock.Lock()
 	defer logLock.Unlock()
 	info := logInit("[WARNING] ")
-	fmt.Printf(message, v)
-	info.Printf(message, v)
-	fmt.Println()
+	prints(info, message, v)
 }
 
 // LogError 记录error级别日志
@@ -54,9 +50,7 @@ func LogError(message string, v ...any) {
 	logLock.Lock()
 	defer logLock.Unlock()
 	info := logInit("[ERROR] ")
-	fmt.Printf(message, v)
-	info.Printf(message, v)
-	fmt.Println()
+	prints(info, message, v)
 }
 
 // 拼合日志信息
@@ -102,4 +96,16 @@ func init() {
 	logName = getLogFileName()
 	// 初始化日志io
 	fileLog = GetLogFileIo()
+}
+
+func prints(logs *log.Logger, message string, v []any) {
+	if v == nil || len(v) == 0 {
+		fmt.Printf(message)
+		logs.Printf(message)
+		fmt.Println()
+	} else {
+		fmt.Printf(message, v)
+		logs.Printf(message, v)
+		fmt.Println()
+	}
 }

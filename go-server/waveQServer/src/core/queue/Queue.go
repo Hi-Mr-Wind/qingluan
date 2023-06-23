@@ -14,6 +14,6 @@ type Queue interface {
 }
 
 // SetCapacity 设置队列容量
-func SetCapacity(q *queueImpl.StandardQueue, capacity int32) {
+func SetCapacity(q *queueImpl.BroadcastQueue, capacity int32) {
 	q.Capacity = capacity
 }

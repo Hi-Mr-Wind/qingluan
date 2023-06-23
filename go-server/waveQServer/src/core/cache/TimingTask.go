@@ -17,7 +17,7 @@ func init() {
 func clear() {
 	cronJob := cron.New()
 	// 定义一个每分钟一次的任务
-	_, err := cronJob.AddFunc("0 0 23 * * *", func() {
+	_, err := cronJob.AddFunc("0 0 23 * *", func() {
 		now := time.Now()
 		date := now.AddDate(0, 0, -int(config.GetConfig().PossessTime)).UnixNano() // 获取配置的消息持有天数
 		deleteSubMessage(date)
@@ -31,8 +31,6 @@ func clear() {
 		return
 	}
 	cronJob.Start()
-	// 程序不会退出，除非手动停止
-	select {}
 }
 
 // 删除指定天数之前的订阅消息

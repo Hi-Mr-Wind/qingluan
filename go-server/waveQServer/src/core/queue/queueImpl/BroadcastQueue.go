@@ -58,7 +58,7 @@ func (q *BroadcastQueue) Push(mes *message.Message) {
 
 	}
 	// 异步将消息持久化
-	go message.SetCachedSubMessage(mes)
+	//go message.SetCachedSubMessage(mes)
 	q.messages = append(q.messages, *mes)
 }
 
@@ -70,7 +70,6 @@ func (q *BroadcastQueue) Pull(index int32) *message.Message {
 		logutil.LogInfo(q.GroupId + " --queue:" + q.QueueId + "is nonentity message ")
 		return nil
 	}
-	entity.User{}.MessageChan <- &q.messages[index]
 	return &q.messages[index]
 }
 
