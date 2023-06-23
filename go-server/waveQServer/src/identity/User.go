@@ -1,7 +1,7 @@
 package identity
 
 import (
-	"waveQServer/src/entity/message"
+	"waveQServer/src/core/message"
 )
 
 // Subscriber 定义一个消息通道

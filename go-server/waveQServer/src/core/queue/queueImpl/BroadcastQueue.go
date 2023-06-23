@@ -58,7 +58,7 @@ func (q *BroadcastQueue) Push(mes *message.Message) {
 
 	}
 	// 异步将消息持久化
-	go message.SetCachedMessage(mes)
+	go message.SetCachedSubMessage(mes)
 	q.messages = append(q.messages, *mes)
 }
 

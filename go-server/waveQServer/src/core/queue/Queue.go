@@ -1,8 +1,8 @@
 package queue
 
 import (
+	"waveQServer/src/core/message"
 	"waveQServer/src/core/queue/queueImpl"
-	"waveQServer/src/entity/message"
 	"waveQServer/src/identity"
 )
 

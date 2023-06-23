@@ -24,7 +24,7 @@ func logInit(prefix string) *log.Logger {
 			panic(err)
 		}
 		logName = name
-		fileLog = getLogFileIo()
+		fileLog = GetLogFileIo()
 	}
 	return log.New(fileLog, prefix, log.Lmicroseconds|log.Ldate)
 }
@@ -65,7 +65,7 @@ func pieceLog(message string) string {
 }
 
 // GetLogFileIo 获取日志文件的io
-func getLogFileIo() *os.File {
+func GetLogFileIo() *os.File {
 	f, err := os.OpenFile(logName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {
 		fmt.Println(err)
@@ -101,5 +101,5 @@ func init() {
 	//初始化日志名称
 	logName = getLogFileName()
 	// 初始化日志io
-	fileLog = getLogFileIo()
+	fileLog = GetLogFileIo()
 }

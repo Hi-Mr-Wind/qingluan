@@ -8,16 +8,16 @@ import (
 )
 
 // SetCachedSubMessage 创建一个订阅消息缓存
-func SetCachedSubMessage(mes *SubMessage) {
+func SetCachedSubMessage(mes *Message) {
 	message := dto.SubMessage{
-		MessageId:  mes.MessageId,
-		ProducerId: mes.ProducerId,
-		Timestamp:  mes.Timestamp,
-		SendTime:   mes.SendTime,
-		QueueId:    mes.QueueId,
-		Indate:     mes.Indate,
-		Subscriber: utils.ListToStr(mes.Subscriber),
-		Body:       mes.Body,
+		MessageId:  Heard{}.MessageId,
+		ProducerId: Heard{}.ProducerId,
+		Timestamp:  Heard{}.Timestamp,
+		SendTime:   Heard{}.SendTime,
+		QueueId:    Heard{}.QueueId,
+		Indate:     Heard{}.Indate,
+		Subscriber: utils.ListToStr(SubMessage{}.Subscriber),
+		Body:       SubMessage{}.Body,
 	}
 	database.GetDb().Create(&message)
 }
