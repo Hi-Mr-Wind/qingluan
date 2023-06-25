@@ -1,9 +1,13 @@
 package service
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"net/http"
 	"waveQServer/src/comm"
+	"waveQServer/src/comm/req"
+	"waveQServer/src/core/cache"
 	"waveQServer/src/core/database"
 	"waveQServer/src/core/groups"
 	"waveQServer/src/entity"
@@ -60,12 +64,51 @@ func Login(c *gin.Context) {
 	return
 }
 
+// CreateApiKey 创建消费者apikey
+func CreateApiKey(c *gin.Context) {
+	r := new(req.CreateApiKeyReq)
+	err := c.ShouldBindJSON(r)
+	if err != nil {
+		comm.DisposeError(err, c)
+		return
+	}
+	user := new(entity.User)
+	user.ApiKey = utils.GetApiKey(r.RecessRights)
+	user.Id = uuid.New().String()
+	user.CreatTime = utils.GetTime()
+	user.ExpirationTime = r.ExpirationTime
+	us := make([]entity.QueueUser, 1, 10)
+	for _, v := range r.RecessRights {
+		u := new(entity.QueueUser)
+		u.Id = uuid.New().String()
+		u.QueueId = v
+		u.UserId = user.Id
+		us = append(us, *u)
+	}
+	cache.AddApikey(*user, r.RecessRights)
+	//异步持久化
+	go func() {
+		database.GetDb().Create(user)
+		database.GetDb().Create(us)
+	}()
+	comm.OK(user)
+	return
+}
+
 // CreateGroup 创建一个组
 func CreateGroup(c *gin.Context) {
 	group := make(map[string]string)
 	err := c.ShouldBindJSON(group)
 	if err != nil {
 		comm.DisposeError(err, c)
+		return
+	}
+	if group["groupId"] == "" {
+		comm.DisposeError(errors.New("groupId is null"), c)
+		return
+	}
+	if groups.GetGroupById(group["groupId"]) != nil {
+		comm.DisposeError(errors.New("the group is exist"), c)
 		return
 	}
 	_, err = groups.NewGroup(group["groupId"])

@@ -14,6 +14,12 @@ var limits = make(map[string][]string)
 // 缓存所有的apikey
 var apiKeys []entity.User
 
+// AddApikey 添加新的apikey
+func AddApikey(apiKey entity.User, recessRights []string) {
+	apiKeys = append(apiKeys, apiKey)
+	limits[apiKey.ApiKey] = recessRights
+}
+
 // GetLimit 根据apikey获取所拥有的权限
 func GetLimit(apiKey string) []string {
 	return limits[apiKey]

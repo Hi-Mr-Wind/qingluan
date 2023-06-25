@@ -31,7 +31,11 @@ func NewGroup(groupId string) (*Group, error) {
 
 // GetGroupById 根据组ID获取一个组对象
 func GetGroupById(id string) *Group {
-	return groups[id]
+	if group, ok := groups[id]; ok {
+		return group
+	} else {
+		return nil
+	}
 }
 
 // GetGroupQueueById 根据队列ID获取队列
@@ -52,8 +56,4 @@ func (g *Group) BindQueue(que queue.Queue) error {
 	}
 	g.GroupQueue[que.GetQueueId()] = &que
 	return nil
-}
-
-func init() {
-
 }

@@ -2,10 +2,13 @@ package entity
 
 // User 消费者用户
 type User struct {
-	Id             string `gorm:"column:id;primary_key;NOT NULL"`
-	ApiKey         string `gorm:"column:api_key"`
+	Id     string `gorm:"column:id;primary_key;NOT NULL"`
+	ApiKey string `gorm:"column:api_key"`
+	//过期时间
 	ExpirationTime int64  `gorm:"column:expiration_time"`
 	CreatTime      string `gorm:"column:creat_time"`
+	//已应答消息
+	Answer string `gorm:"column:answer"`
 }
 
 func (u *User) TableName() string {

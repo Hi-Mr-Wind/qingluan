@@ -11,6 +11,7 @@ func Enter(url *gin.RouterGroup) {
 }
 
 func Urls(url *gin.RouterGroup) {
-	url.POST("/createGroup", service.CreateGroup) //创建组对象
+	url.POST("/createGroup", service.CreateGroup)   //创建组对象
+	url.POST("/createApiKey", service.CreateApiKey) //创建消费者apikey
 
 }

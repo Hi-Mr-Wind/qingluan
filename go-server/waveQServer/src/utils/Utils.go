@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"waveQServer/src/utils/logutil"
 )
 
 type Def func()
@@ -102,4 +103,26 @@ func StrToList(str string) []string {
 // TimeTask 设置一个一次性的定时器
 func TimeTask(t time.Duration, f Def) {
 	time.AfterFunc(time.Millisecond*t, f)
+}
+
+// MapToJson map转为json
+func MapToJson(m map[string]interface{}) string {
+	// 将map转为JSON格式
+	result, err := json.Marshal(m)
+	if err != nil {
+		logutil.LogError(err.Error())
+		return ""
+	}
+	return string(result)
+}
+
+// JsonToMap json转map
+func JsonToMap(j string) map[string]interface{} {
+	data := map[string]interface{}{}
+	// 解析JSON数据到map中
+	if err := json.Unmarshal([]byte(j), &data); err != nil {
+		logutil.LogError(err.Error())
+		return nil
+	}
+	return data
 }

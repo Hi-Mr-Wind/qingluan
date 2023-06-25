@@ -6,7 +6,9 @@ import (
 	"strconv"
 	"testing"
 	"time"
+	"waveQServer/src/comm/enum"
 	"waveQServer/src/core/database"
+	"waveQServer/src/core/message"
 	"waveQServer/src/entity"
 	"waveQServer/src/utils"
 	"waveQServer/src/utils/logutil"
@@ -86,4 +88,19 @@ func TestMes(t *testing.T) {
 
 	//subMessage := message.GetCachedSubMessage("hefgbdfage")
 	//fmt.Println("查询到的数据为", subMessage)
+}
+
+func TestType(t *testing.T) {
+	mes := new(message.DelayedMessage)
+	fmt.Println(getType(*mes))
+}
+
+func getType(mes any) int8 {
+	switch mes.(type) {
+	case message.RandomMessage:
+		return enum.RandomMessage
+	case message.DelayedMessage:
+		return enum.DelayedMessage
+	}
+	return -1
 }
