@@ -85,13 +85,13 @@ func CreateApiKey(c *gin.Context) {
 		u.UserId = user.Id
 		us = append(us, *u)
 	}
-	cache.AddApikey(*user, r.RecessRights)
+	cache.AddApikey(user, r.RecessRights)
 	//异步持久化
 	go func() {
 		database.GetDb().Create(user)
 		database.GetDb().Create(us)
 	}()
-	comm.OK(user)
+	c.JSON(http.StatusOK, comm.OK(user))
 	return
 }
 

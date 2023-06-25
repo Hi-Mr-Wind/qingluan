@@ -12,10 +12,10 @@ import (
 var limits = make(map[string][]string)
 
 // 缓存所有的apikey
-var apiKeys []entity.User
+var apiKeys []*entity.User
 
 // AddApikey 添加新的apikey
-func AddApikey(apiKey entity.User, recessRights []string) {
+func AddApikey(apiKey *entity.User, recessRights []string) {
 	apiKeys = append(apiKeys, apiKey)
 	limits[apiKey.ApiKey] = recessRights
 }
@@ -53,7 +53,7 @@ func IsInKeys(apikey string) bool {
 func GetUser(apiKey string) *entity.User {
 	for _, o := range apiKeys {
 		if o.ApiKey == apiKey {
-			return &o
+			return o
 		}
 	}
 	return nil
@@ -104,7 +104,7 @@ func deletePastDueApiKey() {
 // 加载apikey缓存
 func loadingCache() {
 	//查询所有的apikey并缓存
-	user := new([]entity.User)
+	user := new([]*entity.User)
 	database.GetDb().Find(&user)
 	apiKeys = *user
 	//加载apikey下的权限

@@ -49,11 +49,11 @@ func GetGroupQueueById(groupId string, queueId string) (*queue.Queue, error) {
 }
 
 // BindQueue 向组中添加一个队列
-func (g *Group) BindQueue(que queue.Queue) error {
-	q := g.GroupQueue[que.GetQueueId()]
+func (g *Group) BindQueue(que *queue.Queue) error {
+	q := g.GroupQueue[que.GroupId]
 	if q != nil {
 		return errors.New("the queue is already in the group")
 	}
-	g.GroupQueue[que.GetQueueId()] = &que
+	g.GroupQueue[que.QueueId] = que
 	return nil
 }

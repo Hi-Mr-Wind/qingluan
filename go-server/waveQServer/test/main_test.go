@@ -3,10 +3,10 @@ package test
 import (
 	"fmt"
 	"runtime"
-	"strconv"
 	"testing"
 	"time"
 	"waveQServer/src/comm/enum"
+	"waveQServer/src/core/cache"
 	"waveQServer/src/core/database"
 	"waveQServer/src/core/message"
 	"waveQServer/src/entity"
@@ -70,22 +70,21 @@ func TestApikey(t *testing.T) {
 }
 
 func TestMes(t *testing.T) {
-	formatInt := strconv.FormatInt(time.Now().UnixNano(), 16)
-	fmt.Println(formatInt)
-	//mes := message.SubMessage{
-	//	Heard: message.Heard{
-	//		MessageId:  "hefgbdfage",
-	//		ProducerId: "asfqdacxasdqwcqwd",
-	//		QueueId:    "c196de8f-d2d6-60d9-6092-c20433d156b3",
-	//		Timestamp:  1687276300870,
-	//		SendTime:   1687276300870,
-	//		Indate:     0,
-	//	},
-	//	Subscriber: []string{"45a64421-35cc-6465-2046-3df88078542b"},
-	//	Body:       []byte{2, 122, 98, 254},
-	//}
-	//message.SetCachedSubMessage(&mes)
-
+	cache.DelApiKey("asdasd")
+	mes := message.SubMessage{
+		Heard: message.Heard{
+			MessageId:  "hefgbdferdvasdage",
+			ProducerId: "asfqdacxasdqwcqwd",
+			QueueId:    "c196de8f-d2d6-60d9-6092-c20433d156b3",
+			Timestamp:  1687276300870,
+			SendTime:   1687276300870,
+			Indate:     0,
+		},
+		Subscriber: []string{"45a64421-35cc-6465-2046-3df88078542b"},
+		Body:       []byte{2, 122, 98, 254},
+	}
+	message.SetCachedSubMessage(&mes)
+	select {}
 	//subMessage := message.GetCachedSubMessage("hefgbdfage")
 	//fmt.Println("查询到的数据为", subMessage)
 }
