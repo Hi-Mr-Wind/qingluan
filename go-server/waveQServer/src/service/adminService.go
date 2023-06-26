@@ -12,7 +12,6 @@ import (
 	"waveQServer/src/core/groups"
 	"waveQServer/src/entity"
 	"waveQServer/src/utils"
-	"waveQServer/src/utils/jwtutil"
 	"waveQServer/src/utils/logutil"
 )
 
@@ -32,40 +31,8 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, fail)
 		return
 	}
-	adm := new(entity.Admin)
-	md5 := utils.Md5([]byte(admin.UserName))
-	database.GetDb().Where("user_name = ?", md5).Find(&adm)
-	if utils.IsEmpty(adm.Id) {
-		logutil.LogInfo("login failure! The account or password is incorrect.")
-		fail := comm.Fail("login failure! The account or password is incorrect.")
-		c.JSON(http.StatusBadRequest, fail)
-		c.Abort()
-		return
-	}
-	if utils.NotEquals(adm.UserName, utils.Md5([]byte(admin.UserName))) {
-		fail := comm.Fail("username error")
-		c.JSON(http.StatusBadRequest, fail)
-		c.Abort()
-		return
-	}
-	if utils.NotEquals(adm.Password, utils.Md5([]byte(admin.Password))) {
-		fail := comm.Fail("password error")
-		c.JSON(http.StatusBadRequest, fail)
-		c.Abort()
-		return
-	}
-	token, err := jwtutil.GetToken(admin.UserName, admin.Password)
-	if err != nil {
-		fail := comm.Fail(err.Error())
-		c.JSON(http.StatusBadRequest, fail)
-		c.Abort()
-		return
-	}
-	m := make(map[string]string)
-	m["XMD-TOKEN"] = token
-	ok := comm.OK(m)
-	c.JSON(http.StatusOK, ok)
-	c.Abort()
+	data, code := admin.Login()
+	c.JSON(code, data)
 	return
 }
 
