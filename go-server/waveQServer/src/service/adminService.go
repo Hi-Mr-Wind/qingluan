@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"net/http"
 	"waveQServer/src/comm"
-	"waveQServer/src/comm/req"
+	"waveQServer/src/comm/req/cqe"
 	"waveQServer/src/core/cache"
 	"waveQServer/src/core/database"
 	"waveQServer/src/core/groups"
@@ -18,13 +18,18 @@ import (
 
 // Login 管理员登录
 func Login(c *gin.Context) {
-	admin := entity.NewAdmin()
-	err := c.ShouldBindJSON(admin)
-	if err != nil {
+	admin := &cqe.AdminCmd{}
+	if err := c.ShouldBindJSON(admin); err != nil {
 		logutil.LogError(err.Error())
 		fail := comm.Fail(err.Error())
 		c.JSON(http.StatusBadRequest, fail)
 		c.Abort()
+		return
+	}
+	if err := admin.Validate(); err != nil {
+		logutil.LogError(err.Error())
+		fail := comm.Fail(err.Error())
+		c.JSON(http.StatusBadRequest, fail)
 		return
 	}
 	adm := new(entity.Admin)
@@ -66,10 +71,16 @@ func Login(c *gin.Context) {
 
 // CreateApiKey 创建消费者apikey
 func CreateApiKey(c *gin.Context) {
-	r := new(req.CreateApiKeyReq)
+	r := &cqe.CreateApiKeyCmd{}
 	err := c.ShouldBindJSON(r)
 	if err != nil {
 		comm.DisposeError(err, c)
+		return
+	}
+	if err := r.Validate(); err != nil {
+		logutil.LogError(err.Error())
+		fail := comm.Fail(err.Error())
+		c.JSON(http.StatusBadRequest, fail)
 		return
 	}
 	user := new(entity.User)
