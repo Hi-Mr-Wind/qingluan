@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"testing"
 	"time"
+	"waveQServer/src/comm"
 	"waveQServer/src/comm/enum"
 	"waveQServer/src/core/cache"
 	"waveQServer/src/core/database"
@@ -102,4 +103,17 @@ func getType(mes any) int8 {
 		return enum.DelayedMessage
 	}
 	return -1
+}
+func TestUUID(t *testing.T) {
+	comm.Play.Add(1)
+	comm.Play.Wait()
+	//snowflake, err := utils.NewSnowflake(1)
+	//if err != nil {
+	//	return
+	//}
+	for i := 0; i < 10; i++ {
+		id := utils.GetSnowflakeIdStr()
+		fmt.Println(id)
+		time.Sleep(100)
+	}
 }
