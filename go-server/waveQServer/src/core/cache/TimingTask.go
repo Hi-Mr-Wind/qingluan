@@ -18,6 +18,7 @@ func clear() {
 	cronJob := cron.New()
 	// 定义一个每分钟一次的任务
 	_, err := cronJob.AddFunc("0 0 23 * *", func() {
+		database.Release() //清理sqllite预占用空间
 		now := time.Now()
 		date := now.AddDate(0, 0, -int(config.GetConfig().PossessTime)).UnixNano() // 获取配置的消息持有天数
 		deleteSubMessage(date)

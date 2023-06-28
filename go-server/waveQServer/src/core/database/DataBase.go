@@ -36,3 +36,8 @@ func init() {
 func GetDb() *gorm.DB {
 	return qdb
 }
+
+// Release 释放sqllite预占用空间
+func Release() {
+	qdb.Exec("VACUUM")
+}
