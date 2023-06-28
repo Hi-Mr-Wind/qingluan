@@ -62,14 +62,12 @@ func Push(c *gin.Context) {
 	queueMessage := &cqe.QueueMessageInfoCmd{}
 	if err := c.ShouldBindJSON(queueMessage); err != nil {
 		logutil.LogError(err.Error())
-		fail := comm.Fail(err.Error())
-		c.JSON(http.StatusBadRequest, fail)
+		comm.DisposeError(err, c)
 		return
 	}
 	if err := queueMessage.Validate(); err != nil {
 		logutil.LogError(err.Error())
-		fail := comm.Fail(err.Error())
-		c.JSON(http.StatusBadRequest, fail)
+		comm.DisposeError(err, c)
 		return
 	}
 	// 获取队列信息
@@ -84,13 +82,13 @@ func Push(c *gin.Context) {
 	newMessage := message.NewMessage(queueMessage)
 	if newMessage == nil {
 		logutil.LogError("消息类型不符合规定")
+		comm.DisposeError(errors.New("the message type is invalid"), c)
 		return
 	}
 	err = queue.Push(&newMessage)
 	if err != nil {
 		logutil.LogInfo(err.Error())
 		comm.DisposeError(err, c)
-		c.JSON(http.StatusBadRequest, comm.Fail(err.Error()))
 		return
 	}
 	c.JSON(http.StatusOK, comm.OK())
