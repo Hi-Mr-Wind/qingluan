@@ -41,9 +41,9 @@ func Pull(c *gin.Context) {
 	}
 	//每100毫秒查询一次消息，如果查询100次后（10秒）依旧没有消息则返回null
 	for i := 0; i < 100; i++ {
-		message := queue.Pull(utils.JsonToMap(cache.GetUser(apiKey).Answer)[query.QueueId].(int32))
-		if message != nil {
-			c.JSON(http.StatusOK, comm.OK(message))
+		mes := queue.Pull(utils.JsonToMap(cache.GetUser(apiKey).Answer)[query.QueueId].(int32))
+		if mes != nil {
+			c.JSON(http.StatusOK, comm.OK(mes))
 			c.Abort()
 			//跳转到退出位置，防止变量污染
 			goto exit

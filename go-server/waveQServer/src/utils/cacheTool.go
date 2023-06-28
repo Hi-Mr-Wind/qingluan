@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var cac *Cache = NewCache()
+var cac = NewCache()
 
 type cacheItem struct {
 	value      interface{}
@@ -99,7 +99,7 @@ func (c *Cache) Clear() {
 
 // 周期性清理过期键
 func (c *Cache) startCleanup() {
-	ticker := time.NewTicker(time.Minute) // 每分钟触发一次清理
+	ticker := time.NewTicker(3 * time.Minute) // 每3分钟触发一次清理
 
 	for {
 		select {
