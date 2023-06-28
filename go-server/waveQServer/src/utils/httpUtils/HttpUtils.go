@@ -75,11 +75,25 @@ func Token(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	_, err := jwtutil.ParseToken(token)
+	parsedToken, err := jwtutil.ParseToken(token)
 	if err != nil {
 		c.JSON(http.StatusForbidden, comm.Fail(err.Error()))
 		c.Abort()
 		return
+	}
+	expirationTime := parsedToken.ExpiresAt
+	currentTime := time.Now().Unix()
+	if expirationTime-currentTime <= 300 {
+		renewedToken, renewErr := jwtutil.RenewToken(parsedToken) // 生成新token
+		if renewErr != nil {
+			c.JSON(http.StatusForbidden, comm.Fail(renewErr.Error()))
+			c.Abort()
+			return
+		}
+		if len(renewedToken) == 0 { // 如果没有超时则结束本方法
+			return
+		}
+		c.Header("XMD-TOKEN", renewedToken) // 更新新token
 	}
 	return
 }

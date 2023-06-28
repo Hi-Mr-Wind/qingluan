@@ -45,3 +45,23 @@ func ParseToken(tokenString string) (*jwt.StandardClaims, error) {
 	}
 	return nil, errors.New("the token is not valid")
 }
+
+func RenewToken(parsedToken *jwt.StandardClaims) (string, error) {
+	// 检查 Token 是否已过期
+	if parsedToken.ExpiresAt > time.Now().Unix() {
+		// 进行续签操作
+		// 更新响应的过期时间
+		newExpiresAt := time.Now().Add(OutTime).Unix()
+		parsedToken.ExpiresAt = newExpiresAt
+		// 生成新的 Token
+		newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, parsedToken)
+		// 签名 Token
+		tokenString, err := newToken.SignedString(secret)
+		if err != nil {
+			return "", err
+		}
+		return tokenString, nil
+	}
+	// 如果 Token 尚未过期，则无需续签
+	return "", nil
+}

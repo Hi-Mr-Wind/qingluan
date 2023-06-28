@@ -6,23 +6,34 @@ import (
 	"net/http"
 	"time"
 	"waveQServer/src/comm"
+	"waveQServer/src/comm/req/cqe"
 	"waveQServer/src/core/cache"
 	"waveQServer/src/core/groups"
+	"waveQServer/src/core/message"
 	"waveQServer/src/utils"
+	"waveQServer/src/utils/httpUtils"
 	"waveQServer/src/utils/logutil"
 )
 
 // Pull 拉取消息
 func Pull(c *gin.Context) {
-	queueId := c.Query("queueId")
-	groupId := c.Query("groupId")
-	apiKey := c.Request.Header.Get("API_KEY")
+	query := &cqe.QueueInfoQuery{
+		QueueId: c.Query("queue_id"),
+		GroupId: c.Query("group_id"),
+	}
+	if err := query.Validate(); err != nil {
+		logutil.LogError(err.Error())
+		fail := comm.Fail(err.Error())
+		c.JSON(http.StatusBadRequest, fail)
+		return
+	}
+	apiKey := cqe.GetApiKey(c)
 	//判断用户是否有足够权限
-	if cache.IsValidLimit(apiKey, queueId) {
+	if cache.IsValidLimit(apiKey, query.QueueId) {
 		comm.DisposeError(errors.New("insufficient privileges"), c)
 		return
 	}
-	queue, err := groups.GetGroupQueueById(groupId, queueId)
+	queue, err := groups.GetGroupQueueById(query.GroupId, query.QueueId)
 	if err != nil {
 		logutil.LogInfo(err.Error())
 		comm.DisposeError(err, c)
@@ -30,7 +41,7 @@ func Pull(c *gin.Context) {
 	}
 	//每100毫秒查询一次消息，如果查询100次后（10秒）依旧没有消息则返回null
 	for i := 0; i < 100; i++ {
-		message := queue.Pull(utils.JsonToMap(cache.GetUser(apiKey).Answer)[queueId].(int32))
+		message := queue.Pull(utils.JsonToMap(cache.GetUser(apiKey).Answer)[query.QueueId].(int32))
 		if message != nil {
 			c.JSON(http.StatusOK, comm.OK(message))
 			c.Abort()
@@ -44,4 +55,43 @@ func Pull(c *gin.Context) {
 	c.JSON(http.StatusOK, comm.OK(nil))
 exit:
 	return
+}
+
+// Push 添加消息
+func Push(c *gin.Context) {
+	queueMessage := &cqe.QueueMessageInfoCmd{}
+	if err := c.ShouldBindJSON(queueMessage); err != nil {
+		logutil.LogError(err.Error())
+		fail := comm.Fail(err.Error())
+		c.JSON(http.StatusBadRequest, fail)
+		return
+	}
+	if err := queueMessage.Validate(); err != nil {
+		logutil.LogError(err.Error())
+		fail := comm.Fail(err.Error())
+		c.JSON(http.StatusBadRequest, fail)
+		return
+	}
+	// 获取队列信息
+	queue, err := groups.GetGroupQueueById(queueMessage.GroupId, queueMessage.QueueId)
+	if err != nil {
+		logutil.LogError(err.Error())
+		comm.DisposeError(err, c)
+		return
+	}
+	// 验证token
+	httpUtils.Token(c)
+	newMessage := message.NewMessage(queueMessage)
+	if newMessage == nil {
+		logutil.LogError("消息类型不符合规定")
+		return
+	}
+	err = queue.Push(&newMessage)
+	if err != nil {
+		logutil.LogInfo(err.Error())
+		comm.DisposeError(err, c)
+		c.JSON(http.StatusBadRequest, comm.Fail(err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, comm.OK())
 }

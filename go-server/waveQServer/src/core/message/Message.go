@@ -1,6 +1,12 @@
 package message
 
-import "sync"
+import (
+	"sync"
+	"time"
+	"waveQServer/src/comm/enum"
+	"waveQServer/src/comm/req/cqe"
+	"waveQServer/src/utils"
+)
 
 type Message interface {
 	GetHeader() *Heard
@@ -101,4 +107,54 @@ type DelayedMessage struct {
 
 func (message *DelayedMessage) GetHeader() *Heard {
 	return &message.Heard
+}
+
+func NewMessage(mes *cqe.QueueMessageInfoCmd) Message {
+	// 构建信息头
+	heard := Heard{
+		MessageId:  utils.GetSnowflakeIdStr(),
+		ProducerId: mes.ProducerId,
+		QueueId:    mes.QueueId,
+		Timestamp:  time.Now().UnixNano() / int64(time.Millisecond),
+		SendTime:   time.Now().UnixNano() / int64(time.Millisecond),
+		Indate:     mes.Indate,
+	}
+	switch mes.MessageType {
+	case enum.RandomMessage:
+		randomMessage := RandomMessage{
+			Heard:  heard,
+			Body:   mes.Body,
+			Weight: mes.Weight,
+			Number: mes.Number,
+		}
+		return &randomMessage
+	case enum.DelayedMessage:
+		delayedMessage := DelayedMessage{
+			Heard:   heard,
+			Body:    mes.Body,
+			Delayed: mes.Delayed,
+		}
+		return &delayedMessage
+	case enum.ExclusiveMessage:
+		exclusiveMessage := ExclusiveMessage{
+			Heard: heard,
+			Body:  mes.Body,
+		}
+		return &exclusiveMessage
+	case enum.WeightMessage:
+		weightMessage := WeightMessage{
+			Heard:  heard,
+			Body:   mes.Body,
+			Weight: mes.Weight,
+		}
+		return &weightMessage
+	case enum.SubMessage:
+		subMessage := SubMessage{
+			Heard:      heard,
+			Body:       mes.Body,
+			Subscriber: mes.Subscriber,
+		}
+		return &subMessage
+	}
+	return nil
 }
