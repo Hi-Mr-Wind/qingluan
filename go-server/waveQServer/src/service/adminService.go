@@ -5,6 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
+	"strings"
+	"time"
 	"waveQServer/src/comm"
 	"waveQServer/src/comm/req/cqe"
 	"waveQServer/src/core/cache"
@@ -12,6 +14,7 @@ import (
 	"waveQServer/src/core/groups"
 	"waveQServer/src/entity"
 	"waveQServer/src/utils"
+	"waveQServer/src/utils/jwtutil"
 	"waveQServer/src/utils/logutil"
 )
 
@@ -92,6 +95,66 @@ func CreateGroup(c *gin.Context) {
 	_, err = groups.NewGroup(group["groupId"])
 	if err != nil {
 		comm.DisposeError(err, c)
+		return
+	}
+	c.JSON(http.StatusOK, comm.OK())
+	return
+}
+
+var tokenInstance = cache.GetTokenInstance() // 获取TokenPermission单例
+
+// 创建令牌
+func CreateToken(c *gin.Context) {
+	cmd := &cqe.CreateTokenCmd{}
+	if err := c.ShouldBindJSON(cmd); err != nil {
+		logutil.LogError(err.Error())
+		fail := comm.Fail(err.Error())
+		c.JSON(http.StatusBadRequest, fail)
+		c.Abort()
+		return
+	}
+	if err := cmd.Validate(); err != nil {
+		logutil.LogError(err.Error())
+		fail := comm.Fail(err.Error())
+		c.JSON(http.StatusBadRequest, fail)
+		return
+	}
+	tokenPermission := new(entity.TokenPermission)
+	tokenPermission.Permission = strings.Join(cmd.Permission, ",") // 列表转化为字符串用于储存到数据库
+	tokenPermission.Token = jwtutil.GenerateToken()                // 创建一个令牌
+	tokenPermission.UserId = cmd.UserId
+	tokenPermission.CreatedAt = time.Now()
+	tokenInstance.AddToken(tokenPermission, cmd.Permission) // 添加token到缓存中
+	// 异步刷盘
+	go func() {
+		database.GetDb().Create(tokenPermission)
+	}()
+	c.JSON(http.StatusOK, comm.OK(tokenPermission.Token))
+	return
+}
+
+// 删除令牌
+func DeleteToken(c *gin.Context) {
+	cmd := &cqe.DeleteTokenCmd{}
+	if err := c.ShouldBindJSON(cmd); err != nil {
+		logutil.LogError(err.Error())
+		fail := comm.Fail(err.Error())
+		c.JSON(http.StatusBadRequest, fail)
+		c.Abort()
+		return
+	}
+	if err := cmd.Validate(); err != nil {
+		logutil.LogError(err.Error())
+		fail := comm.Fail(err.Error())
+		c.JSON(http.StatusBadRequest, fail)
+		return
+	}
+	err := tokenInstance.DeleteToken(cmd.Token)
+	if err != nil {
+		logutil.LogError(err.Error())
+		fail := comm.Fail(err.Error())
+		c.JSON(http.StatusInternalServerError, fail)
+		c.Abort()
 		return
 	}
 	c.JSON(http.StatusOK, comm.OK())
