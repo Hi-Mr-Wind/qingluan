@@ -18,6 +18,8 @@ import (
 	"waveQServer/src/utils/logutil"
 )
 
+var tokenInstance = cache.GetTokenInstance() // 获取TokenPermission单例
+
 // Login 管理员登录
 func Login(c *gin.Context) {
 	admin := &cqe.AdminCmd{}
@@ -100,8 +102,6 @@ func CreateGroup(c *gin.Context) {
 	c.JSON(http.StatusOK, comm.OK())
 	return
 }
-
-var tokenInstance = cache.GetTokenInstance() // 获取TokenPermission单例
 
 // 创建令牌
 func CreateToken(c *gin.Context) {

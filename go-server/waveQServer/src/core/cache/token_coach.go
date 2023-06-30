@@ -65,6 +65,16 @@ func (c *TokenPermissionsCache) GetPermission(token string) ([]string, bool) {
 	return permission, ok
 }
 
+// 获取token中的权限
+func (c *TokenPermissionsCache) GetTokenPermission(tokens []string, permission string) bool {
+	for i := range tokens {
+		if string(i) == permission {
+			return true
+		}
+	}
+	return false
+}
+
 // DeleteToken 删除指定的令牌
 func (c *TokenPermissionsCache) DeleteToken(token string) error {
 	c.mutex.Lock()

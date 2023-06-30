@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"time"
 	"waveQServer/src/comm"
+	"waveQServer/src/comm/enum"
 	"waveQServer/src/comm/req/cqe"
 	"waveQServer/src/core/cache"
 	"waveQServer/src/core/groups"
 	"waveQServer/src/core/message"
 	"waveQServer/src/utils"
-	"waveQServer/src/utils/httpUtils"
 	"waveQServer/src/utils/logutil"
 )
 
@@ -70,6 +70,18 @@ func Push(c *gin.Context) {
 		comm.DisposeError(err, c)
 		return
 	}
+	// 获取该请求的令牌，并判断权限
+	token := cqe.GetToken(c)
+	permission, b := tokenInstance.GetPermission(token)
+	if b == false {
+		logutil.LogInfo("该令牌没有配置权限")
+		return
+	}
+	if tokenInstance.GetTokenPermission(permission, enum.PermissionSubmitInfo) == false {
+		logutil.LogInfo(token + "：没有权限提交信息")
+		c.JSON(http.StatusForbidden, comm.OK("没有权限"))
+		return
+	}
 	// 获取队列信息
 	queue, err := groups.GetGroupQueueById(queueMessage.GroupId, queueMessage.QueueId)
 	if err != nil {
@@ -77,8 +89,6 @@ func Push(c *gin.Context) {
 		comm.DisposeError(err, c)
 		return
 	}
-	// 验证token
-	httpUtils.Token(c)
 	newMessage := message.NewMessage(queueMessage)
 	if newMessage == nil {
 		logutil.LogError("消息类型不符合规定")
