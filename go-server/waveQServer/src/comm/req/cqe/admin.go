@@ -66,3 +66,28 @@ func (c *CreateApiKeyCmd) Validate() error {
 	}
 	return nil
 }
+
+// 创建token
+type CreateTokenCmd struct {
+	UserId     string   `json:"user_id"`    // 消费者ID
+	Permission []string `json:"permission"` // token的权限
+}
+
+func (c *CreateTokenCmd) Validate() error {
+	if len(c.UserId) == 0 {
+		return fmt.Errorf("user_id is empty")
+	}
+	return nil
+}
+
+// 删除token
+type DeleteTokenCmd struct {
+	Token string `json:"token"`
+}
+
+func (c *DeleteTokenCmd) Validate() error {
+	if len(c.Token) == 0 {
+		return fmt.Errorf("token is empty")
+	}
+	return nil
+}

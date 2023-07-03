@@ -1,9 +1,13 @@
 package jwtutil
 
 import (
+	"crypto/md5"
 	"encoding/base64"
+	"encoding/hex"
 	"errors"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 	"time"
 	"waveQServer/src/utils/logutil"
 )
@@ -64,4 +68,23 @@ func RenewToken(parsedToken *jwt.StandardClaims) (string, error) {
 	}
 	// 如果 Token 尚未过期，则无需续签
 	return "", nil
+}
+
+func GenerateToken() string {
+	// 生成UUID作为唯一标识符
+	uuid := uuid.New().String()
+
+	// 获取当前时间戳
+	timestamp := time.Now().Unix()
+
+	// 将UUID和时间戳连接起来
+	data := fmt.Sprintf("%s-%d", uuid, timestamp)
+
+	// 对数据进行哈希（使用MD5算法作为示例）
+	hasher := md5.New()
+	hasher.Write([]byte(data))
+	hash := hex.EncodeToString(hasher.Sum(nil))
+
+	// 返回哈希缩短的token
+	return hash
 }

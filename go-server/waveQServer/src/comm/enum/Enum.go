@@ -27,3 +27,11 @@ const (
 	// OVER_TIME 超时
 	OVER_TIME
 )
+
+// 令牌权限
+const (
+	PermissionSubmitInfo  = "submit_info"
+	PermissionCreateAPI   = "create_api"
+	PermissionCreateGroup = "create_group"
+	PermissionCreateQueue = "create_queue"
+)

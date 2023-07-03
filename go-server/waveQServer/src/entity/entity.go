@@ -1,5 +1,7 @@
 package entity
 
+import "time"
+
 // User 消费者用户
 type User struct {
 	Id     string `gorm:"column:id;primary_key;NOT NULL"`
@@ -189,4 +191,13 @@ type SubMessage struct {
 
 func (m *SubMessage) TableName() string {
 	return "sub_message"
+}
+
+type TokenPermission struct {
+	ID         int       `gorm:"id"`                // 主键ID
+	UserId     string    `gorm:"user_id"`           // 消费者ID
+	Token      string    `gorm:"column:token"`      // token 令牌
+	Permission string    `gorm:"column:permission"` // 每一个token对应的权限
+	CreatedAt  time.Time `gorm:"column:created_at"` // 创建时间
+	UpdatedAt  time.Time `gorm:"column:updated_at"` // 更新时间
 }

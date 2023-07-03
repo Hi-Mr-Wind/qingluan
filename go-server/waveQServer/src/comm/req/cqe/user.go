@@ -49,3 +49,7 @@ func (q *QueueMessageInfoCmd) Validate() error {
 func GetApiKey(c *gin.Context) string {
 	return c.Request.Header.Get("API_KEY")
 }
+
+func GetToken(c *gin.Context) string {
+	return c.Request.Header.Get("token")
+}
