@@ -31,7 +31,7 @@ var (
 	ErrUnknown             = &Errno{Code: 510, Message: "Unknown error"}
 )
 
-// 主账号创建相关错误码定义
+// 账号创建相关错误码定义
 // 1101xxx
 var (
 	ErrUsernameExists        = &Errno{Code: 1101001, Message: "Username already exists"}

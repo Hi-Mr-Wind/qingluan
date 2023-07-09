@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"github.com/Hi-Mr-Wind/qingluan/tree/develop-ddd/go-server/pkg/config"
 	log "github.com/sirupsen/logrus"
 )
 
