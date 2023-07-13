@@ -2,8 +2,9 @@ package logger
 
 import (
 	"fmt"
-	"github.com/Hi-Mr-Wind/qingluan/tree/develop-ddd/go-server/pkg/config"
 	log "github.com/sirupsen/logrus"
+	"go-service/pkg/config"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 type Option struct {

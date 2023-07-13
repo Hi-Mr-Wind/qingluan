@@ -2,7 +2,9 @@ package config
 
 import (
 	"fmt"
-	"github.com/Hi-Mr-Wind/qingluan/go-server/pkg/assert"
+	"go-service/pkg/assert"
+
+	//"github.com/Hi-Mr-Wind/qingluan/go-server/pkg/assert"
 	"os"
 )
 
